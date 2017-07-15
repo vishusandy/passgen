@@ -38,7 +38,7 @@ pub fn getcfg(file: &str) -> HashMap<u8, Vec<String>> {
 // reads words.txt and returns hashmap dictionary and optionally saves dictionary to file
 #[allow(dead_code)]
 pub fn getdict(savefile: bool, plurals: bool, output: bool) -> HashMap<u8, Vec<String>> {
-    let start = Instant::now();
+    // let start = Instant::now();
     #[allow(non_snake_case)]
     let WORDSTR: &'static str = include_str!("words.txt");
     
@@ -92,10 +92,10 @@ pub fn getdict(savefile: bool, plurals: bool, output: bool) -> HashMap<u8, Vec<S
         println!("# Words: {}\nCapacity: {}\nBuffer Capacity: {}", count, cap, bufcap);
     }
     
-    let end = start.elapsed();
-    if output {
-        println!("Exec time: {}.{:08}", end.as_secs(), end.subsec_nanos());
-    }
+    // let end = start.elapsed();
+    // if output {
+        // println!("Exec time: {}.{:08}", end.as_secs(), end.subsec_nanos());
+    // }
     dict
 }
 
