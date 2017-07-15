@@ -15,25 +15,12 @@ fn main() {
     let start = Instant::now();
     #[allow(unused_assignments)]
     let mut dict: HashMap<u8, Vec<String>> = HashMap::new();
-    dict = getcfg("words-sorted.bin");
-    let mut largest = 0u8;
-    let mut lens: HashMap<u8, usize> = HashMap::new();
-    for (key, v) in &dict {
-        if v.len() > 0 {
-            let wrd = match v.last() {
-                Some(w) => w,
-                None => "Cannot find word",
-            };
-            print!("Last word is {}", wrd);
-        }
-        if *key > largest {
-            largest = *key;
-        }
-        lens.insert(*key, v.len());
-        println!(" Length {} has {} words", key, v.len());
-    }
-    
-    
+    // dict = getcfg("words-sorted.bin");
+    dict = getdict(false, true, true);
+    // getdict(true, true, false);
+    // dict = getcfg("sorted.bin");
+    wordlengths(&dict);
+    // wordlengths(&dict);
     let end = start.elapsed();
     println!("Exec time: {}.{:08}", end.as_secs(), end.subsec_nanos());
 }
