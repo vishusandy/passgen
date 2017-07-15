@@ -5,27 +5,15 @@ extern crate rmp_serde as rmps;
 extern crate serde;
 extern crate time;
 
-use rmps::Deserializer;
-use serde::Deserialize;
+mod dictsort;
+
+use dictsort::*;
 use std::collections::HashMap;
-use std::fs::File;
-use std::io;
-use std::io::prelude::*;
 use std::time::Instant;
-
-fn getcfg(file: &str) -> HashMap<u8, Vec<String>> {
-    let mut dict: HashMap<u8, Vec<String>> = HashMap::new();
-    let mut buf = Vec::new();
-    let mut f = File::open(file).expect("Could not open dictionary");
-    f.read_to_end(&mut buf);
-    let mut ds = Deserializer::new(&buf[..]);
-    dict = Deserialize::deserialize(&mut ds).expect("Could not deserialize dictionary data");
-    dict
-}
-
 
 fn main() {
     let start = Instant::now();
+    #[allow(unused_assignments)]
     let mut dict: HashMap<u8, Vec<String>> = HashMap::new();
     dict = getcfg("words-sorted.bin");
     let mut largest = 0u8;
