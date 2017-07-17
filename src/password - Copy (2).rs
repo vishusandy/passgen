@@ -124,7 +124,27 @@ fn change_consonant(letter: &str) -> String {
     String::new()
 }
 
-fn capitalize(word: &str) -> String {
+/*
+fn cap_letter(word: &str) -> String {
+    let mut rg = thread_rng();
+    let w = word.as_bytes();
+    let choice = rg.choose(w);
+    match choice {
+        Some(c) => {
+            let first = w[0..*c];
+            let last = w[*c+1..];
+            
+            String::new()
+        },
+        None => {
+            String::new()
+        },
+    }
+    // let new = Cat + first + choice + last;
+}
+*/
+
+fn capitalize2(word: &str) -> String {
     let mut rg = thread_rng();
     let num = rg.gen_range(1, word.len()-1) as u8;
     
@@ -139,48 +159,160 @@ fn capitalize(word: &str) -> String {
     }
     v.sort();
     
-    let mut new = String::with_capacity(word.len());
+    let new = String::with_capacity(word.len());
     let loc = 0;
     
     for l in 0..word.len() {
         if v.contains(&l) {
-            new.push_str(&word[l..l+1].to_uppercase());
+            new.push_str(word[l].to_uppercase());
         } else {
-            new.push_str(&word[l..l+1]);
+            new.push_str(word[l]);
         }
     }
     new
     
 }
 
+/*
+fn capitalize(word: &str) -> String {
+    let mut rg = thread_rng();
+    let mut new = String::from(word);
+    let num = rg.gen_range(1, word.len()-1) as u8;
+    for n in 0..num {
+        new = cap_letter(&new);
+    }
+    String::new()
+}
+*/
+/*
+fn capitalize(w: &str) -> String {
+    let mut rg = thread_rng();
+    let mut word = w.to_string();
+    // ensure at least one letter is capitalized 
+    // and at least one letter is left uncapitalized
+    let num = rg.gen_range(1, word.len()-1) as u8;
+    let mut places = [0..w.len()-1];
+    rg.shuffle(&mut places);
+    let mut loc = 0;
+    let mut p = 0;
+    while p <= num {
+        // table
+        // 35142
+        // num=2
+        let take = places[p]
+        
+        places += 1;
+        loc += take;
+    }
+    
+    for _ in 0u8..num {
+        
+    }
+    word
+    
+}
+*/
+
 fn replace_at(word: &str, loc: usize) -> String {
     String::new()
 }
 
 fn add_numbers(word: &str, num: u8) -> String {
-    let mut new = String::with_capacity(word.len()+(num as usize));
-    let mut rg = thread_rng();
-    for _ in 0..num {
-        let ins = rg.gen_range(0, 9);
-        new = random_insert(&new, &ins.to_string());
-    }
-    new
+    
+    String::new()
 }
 
 fn add_punctuation(word: &str, num: u8, special: &str) -> String {
-    let mut rg = thread_rng();
-    let mut new = String::with_capacity(word.len()+(num as usize));
-    let punclist = if special == "" {
-        ",.?-/+*=_@#$%^&()"
+    
+    String::new()
+}
+
+/*
+fn capitalize_at(word: &str, loc: usize) -> String {
+    // let mut beginning = if loc == 0 {
+    let mut beginning = word[0..loc+1].to_string();
+    let chosen = beginning.pop().to_uppercase();
+    let ending = if loc == word.len()-1 {
+        word[loc+1..]
     } else {
-        special
+        ""
     };
-    for _ in 0..num {
-        let ins = rg.gen_range(0, punclist.len());
-        new = random_insert(&new, &punclist[ins..ins+1]);
+    let new = String::with_capacity(word.len()-1);
+    new.push_str(&beginning);
+    new.push(chosen);
+    new.push_str(ending);
+    new
+}
+*/
+
+/*
+fn add_numbers(word: &str, num: u8) -> String {
+    let mut rg = thread_rng();
+    static NUMBERLIST: &'static str = "0123456789";
+    
+    let mut new = String::new();
+    for _ in 0u8..num {
+        new.insert(rg.gen_range(0, NUMBERLIST.len()), rg.choose(NUMBERLIST.chars()));
+        // new.insert_str(rg.gen_range(0, word.len()), NUMBERLIST[rg.gen_range(0, NUMBERLIST.len())]);
+        // new.insert(rg.gen_range(0, word.len()), NUMBERLIST.chars().nth(rg.gen_range(0, NUMBERLIST.len())).unwrap());
     }
     new
 }
+*/
+
+/*
+fn add_punctuation(word: &str, num: u8, special: &str) -> String {
+    let mut rg = thread_rng();
+    let mut new = String::new();
+    let punclist = match special {
+        "" => ",.?-/+*=_@#$%^&()",
+        l => l,
+    };
+
+    for _ in 0u8..num {
+        new.insert(rg.gen_range(0, punclist.len()), rg.choose(punclist.chars()));
+        // new.insert_str(rg.gen_range(0, word.len()), punclist[rg.gen_range(0, punclist.len()-1)]);
+        // new.insert(rg.gen_range(0, word.len()), punclist.chars().nth(rg.gen_range(0, punclist.len()-1)).unwrap());
+    }
+    new
+}
+*/
+
+/*
+fn capitalize_random(w: &str) -> String {
+    //      |
+    // 0123456789 len=10
+    // itsastring
+    
+    let mut word = String::new();
+    let mut rg = thread_rng();
+    let loc = rg.gen_range(0, word.len()-1);
+    // let first = w[0..loc];
+    // let letter = w[loc..loc+1].to_uppercase();
+    // let last = ww[0..loc];
+    
+    let chosen = w[loc..loc+1].to_string();
+    let letter = chosen.pop();
+    word.push_str(w[0..loc]);
+    if letter.is_uppercase() {
+        return capitalize_random();
+    } else {
+        let s = letter.to_uppercase().to_string();
+        word.push_str(&s);
+    }
+    // word.push_str(&letter);
+    word.push_str(w[loc+1..]);
+    
+    // word.push_str(w[0..loc]);
+    // word.push_str(&letter);
+    // word.push_str(w[loc+1..]);
+    
+    // let (first, last) = word.split_at_mut(loc);
+    
+    word
+}
+*/
+
 
 // No longer needed
 fn random_insert(word: &str, character: &str) -> String {
