@@ -105,40 +105,39 @@ pub fn transform(dict: &HashMap<u8, Vec<String>>, length: u8, caps: bool, nums: 
     
     // Get a word and start mutating
     println!("Getting and mutating word");
+    let word_mutated = mutate_word(get_word(dict, len));
+    let word_capitalized = capitalize(&word_mutated);
+    println!("Mutated word: {}\nCapitalized word: {}", word_mutated, word_capitalized);
+    let output = match (nums, punc) {
+        (true, true) => add_numbers(&add_punctuation(&word_capitalized, punclen, special), numlen),
+        (true, false) => add_numbers(&word_capitalized, numlen),
+        (false, false) => word_capitalized,
+        (false, true) => add_punctuation(&word_capitalized, punclen, special),
+    };
+    println!("Password: {}", output);
+    output
+    
+    /*
     let mut word: String = mutate_word(get_word(dict, len));
     word = capitalize(&word);
     if nums {
-        println!("Adding numbers");
+        println!("Adding numbers to {}", word);
         word = add_numbers(&word, numlen);
+        print!("into {}", word);
     }
     if punc {
-        println!("Adding punctuation");
+        println!("Adding punctuation to {}", word);
         word = add_punctuation(&word, punclen, special);
+        print!("into {}", word);
     }
     word
+    */
     // if caps is true capitalize at least 1 letter
     
 }
 
 // let rand = safe_range(0, 9);
 // rg.shuffle(&mut an_array[..]);
-   
-   /* 
-fn in_vec<T, S>(v: &Vec<T>, item: usize) -> bool {
-    for i in v {
-        match v.get(i) {
-            Some(a) => return true,
-            None => {},
-        }
-        /*
-        if v.get(i) == item {
-            return true;
-        }
-        */
-    }
-    false
-}
-*/
 
 fn mutate_word(word: &str) -> String {
     let mut rg = thread_rng();
@@ -147,9 +146,6 @@ fn mutate_word(word: &str) -> String {
     let len = word.len();
     
     let num = safe_range(1, len/2);
-    
-    // let mut letters = [0..word.len()];
-    // let mut letters = vec![0..word.len()];
     
     let mut letters = Vec::new();
     for i in 0..word.len() {
@@ -164,8 +160,6 @@ fn mutate_word(word: &str) -> String {
         let letter = &word[i..i+1];
         
         if changes.contains(&i) {
-        // if changes.contains(&(i..i+1)) {
-        // if in_vec(&letters, i) {
             match letter {
                 "a" | "e" | "i" | "o" | "u" | "y" => {
                     new.push_str(&change_vowel(&letter));
@@ -196,7 +190,7 @@ fn change_vowel(letter: &str) -> String {
             None => "'",
         };
     }
-    println!("\tchaneg_vowel(letter={}) -> {}", letter, choice.to_string());
+    println!("\tchange_vowel(letter={}) -> {}", letter, choice.to_string());
     choice.to_string()
 }
 
@@ -214,7 +208,7 @@ fn change_consonant(letter: &str) -> String {
             None => "'",
         };
     }
-    println!("\tchaneg_consonant(letter={}) -> {}", letter, choice.to_string());
+    println!("\tchange_consonant(letter={}) -> {}", letter, choice.to_string());
     choice.to_string()
 }
 
@@ -250,17 +244,83 @@ fn capitalize(word: &str) -> String {
 }
 
 fn add_numbers(word: &str, num: u8) -> String {
+    let mut rg = thread_rng();
+    let mut p = Vec::new();
+    for i in 0..word.len()+1 {
+        p.push(i);
+    }
+    rg.shuffle(&mut p);
+    let mut places = Vec::new();
+    for i in 0..num {
+        places.push(p[i as usize]);
+    }
+    // places.sort();
+    
+    let mut new = String::with_capacity(word.len()+(num as usize));
+    let mut widx = 0usize;
+    for i in 0..word.len()+(num as usize) {
+        if places.contains(&i) {
+            let rand = safe_range(0,9);
+            new.push_str(&rand.to_string());
+        } else {
+            new.push_str(&word[widx..widx+1]);
+            widx += 1;
+        }
+    }
+    
+    new
+}
+
+fn add_numbers0(word: &str, num: u8) -> String {
+    println!("Adding numbers to {}", word);
     let mut new = String::with_capacity(word.len()+(num as usize));
     let mut rg = thread_rng();
     for _ in 0..num {
         let ins = safe_range(0, 9);
-        new = random_insert(&new, &ins.to_string());
+        new = random_insert(new.as_str(), &ins.to_string());
     }
     println!("add_numbers():\n\tOriginal = {}\n\twith_numbers = {}", word, new);
     new
 }
 
 fn add_punctuation(word: &str, num: u8, special: &str) -> String {
+    let mut rg = thread_rng();
+    let mut p = Vec::new();
+    for i in 0..word.len()+1 {
+        p.push(i);
+    }
+    rg.shuffle(&mut p);
+    let mut places = Vec::new();
+    for i in 0..num {
+        places.push(p[i as usize]);
+    }
+    // places.sort();
+    
+    let mut new = String::with_capacity(word.len()+(num as usize));
+    let mut widx = 0usize;
+    let pchars = ",.?-/+*=_@#$%^&()";
+    println!("Generating punctuated word");
+    for i in 0..word.len()+(num as usize) {
+        if places.contains(&i) {
+            let rand: usize;
+            if special == "" {
+                rand = safe_range(0, pchars.len()-1);
+                new.push_str(&pchars[rand..rand+1]);
+            } else {
+                rand = safe_range(0, special.len()-1);
+                new.push_str(&special[rand..rand+1]);
+            }
+        } else {
+            new.push_str(&word[widx..widx+1]);
+            widx += 1;
+        }
+    }
+    println!("Punctuated word is {}", new);
+    new
+}
+
+fn add_punctuation0(word: &str, num: u8, special: &str) -> String {
+    println!("Adding punctuation to {}", word);
     let mut rg = thread_rng();
     let mut new = String::with_capacity(word.len()+(num as usize));
     let punclist = if special == "" {
@@ -279,13 +339,38 @@ fn add_punctuation(word: &str, num: u8, special: &str) -> String {
 
 fn random_insert(word: &str, character: &str) -> String {
     let mut rg = thread_rng();
-    
     let loc = safe_range(0, word.len());
+    let mut out = String::with_capacity(word.len()+character.len());
+    // tables
+    // 3
+    // tab-les
+    println!("\trandom_insert(word={}, char={})", word, character);
+    if loc == 0 {
+        out.push_str(character);
+        out.push_str(word);
+        println!("\t\tinserting @ {} to return {}", loc, out);
+        out
+    } else {
+        for i in 0..word.len() {
+            if loc == i {
+                println!("\t\t\tadding char {}", character);
+                out.push_str(character);
+            }
+            println!("\t\t\tadding {}", &word[i..i+1]);
+            out.push_str(&word[i..i+1]);
+        }
+        println!("\t\tinserting @ {} to return {}", loc, out);
+        out
+    }
+    
+    /*
     let (first, last) = word.split_at(loc);
     let mut new = String::with_capacity(word.len()+character.len());
     new.push_str(first);
     new.push_str(character);
     new.push_str(last);
+    println!("\trandom_insert(word={}, char={}) -> {}", word, character, new.to_string());
     new.to_string()
+    */
 }
 
