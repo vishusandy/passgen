@@ -3,11 +3,14 @@ extern crate argparse;
 extern crate rand;
 extern crate rmp_serde as rmps;
 extern crate serde;
+extern crate sconcat;
 extern crate time;
 
 mod dictsort;
+mod password;
 
 use dictsort::*;
+use password::*;
 use std::collections::HashMap;
 use std::time::Instant;
 

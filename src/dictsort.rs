@@ -8,7 +8,7 @@ extern crate rmp_serde as rmps;
 
 #[allow(unused_imports)]
 use std::collections::{HashMap, BTreeSet};
-use std::time::Instant;
+// use std::time::Instant;
 use std::fs::File;
 use std::io::BufWriter;
 use std::io::prelude::*;
@@ -99,6 +99,7 @@ pub fn getdict(savefile: bool, plurals: bool, output: bool) -> HashMap<u8, Vec<S
     dict
 }
 
+#[allow(dead_code)]
 pub fn dictinfo(dict: &HashMap<u8, Vec<String>>) {
     let mut largest = 0u8;
     let mut lens: HashMap<u8, usize> = HashMap::new();

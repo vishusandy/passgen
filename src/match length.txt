@@ -1,0 +1,19 @@
+    if len < 6 {
+        
+    } else {
+        let mut wordlen: u8;
+        match nums {
+            true if !punc => {
+                
+            },
+            true => {
+                
+            },
+            false if !punc => {
+                wordlen = len;
+            },
+            false => {
+                
+            },
+        }
+    }
