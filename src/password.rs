@@ -105,7 +105,21 @@ pub fn transform(dict: &HashMap<u8, Vec<String>>, length: u8, caps: bool, nums: 
     
     // Get a word and start mutating
     println!("Getting and mutating word");
-    let word_mutated = mutate_word(get_word(dict, len));
+    let mut word_mutated = mutate_word(get_word(dict, len));
+    
+    // use the following line instead of the above to test if the 
+    // mutated word exists in the dictionary and do a retry
+    
+    // let mut word_mutated = get_word(dict, len).to_string();
+    
+    if let Some(v) = dict.get(&(word_mutated.len() as u8)) {
+        println!("Mutated word `{}` exists in dictionary, retrying", word_mutated);
+        while v.contains(&word_mutated) {
+            word_mutated = mutate_word(get_word(dict, len));
+            println!("Retry result: {}", word_mutated);
+        }
+    }
+    
     let word_capitalized = capitalize(&word_mutated);
     println!("Mutated word: {}\nCapitalized word: {}", word_mutated, word_capitalized);
     let output = match (nums, punc) {
@@ -145,7 +159,13 @@ fn mutate_word(word: &str) -> String {
     let mut new = String::with_capacity(word.len());
     let len = word.len();
     
-    let num = safe_range(1, len/2);
+    let max = match len {
+        a if a > 16 => 3,
+        a if a > 5 && a < 15 => 2,
+        _ => 1,
+    };
+    
+    let num = safe_range(1, max);
     
     let mut letters = Vec::new();
     for i in 0..word.len() {

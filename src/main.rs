@@ -26,7 +26,7 @@ fn main() {
     // wordlengths(&dict);
     
     // dict len caps nums punc special
-    let pass = transform(&dict, 8, true, true, true, "");
+    let pass = transform(&dict, 8, true, false, false, "");
     println!("Password: {}", pass);
     
     let end = start.elapsed();
