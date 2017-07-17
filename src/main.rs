@@ -19,11 +19,16 @@ fn main() {
     #[allow(unused_assignments)]
     let mut dict: HashMap<u8, Vec<String>> = HashMap::new();
     // dict = getcfg("words-sorted.bin");
-    dict = getdict(false, true, true);
-    // getdict(true, true, false);
-    // dict = getcfg("sorted.bin");
-    wordlengths(&dict);
+    
+    // getdict(savefile, plurals, output)
+    dict = getdict(false, false, false);
+    
     // wordlengths(&dict);
+    
+    // dict len caps nums punc special
+    let pass = transform(&dict, 8, true, true, true, "");
+    println!("Password: {}", pass);
+    
     let end = start.elapsed();
     println!("Exec time: {}.{:08}", end.as_secs(), end.subsec_nanos());
 }

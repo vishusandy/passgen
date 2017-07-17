@@ -3,7 +3,7 @@ use rand::distributions::range::SampleRange;
 use sconcat::Cat;
 use std::collections::HashMap;
 
-fn safe_range<T: PartialOrd + SampleRange>(start: T, end: T) -> T {
+pub fn safe_range<T: PartialOrd + SampleRange>(start: T, end: T) -> T {
     if start < end {
         let mut rg = thread_rng();
         rg.gen_range(start, end)
@@ -15,10 +15,10 @@ fn safe_range<T: PartialOrd + SampleRange>(start: T, end: T) -> T {
 pub fn get_word(dict: &HashMap<u8, Vec<String>>, len: u8) -> &str {
     let mut rg = thread_rng();
     // let mut word: &str;
-    // let rand = safe_range(0, 9);
+    // let rand = rg.gen_range(0, 9);
     match dict.get(&len) {
         Some(v) => {
-            &v[safe_range(0, v.len()-1)]
+            &v[rg.gen_range(0, v.len()-1)]
         },
         None => {
             let mut closest: u8 = 0;
@@ -39,9 +39,7 @@ pub fn get_word(dict: &HashMap<u8, Vec<String>>, len: u8) -> &str {
             }
             match dict.get(&closest) {
                 Some(v) => {
-                    let out = &v[safe_range(0, v.len()-1)];
-                    println!("get_word(len={}) = {}", len, &v[safe_range(0, v.len()-1)]);
-                    out
+                    &v[rg.gen_range(0, v.len()-1)]
                 },
                 None => {
                     "error"
@@ -87,32 +85,27 @@ pub fn transform(dict: &HashMap<u8, Vec<String>>, length: u8, caps: bool, nums: 
     let mut rg = thread_rng();
     
     // Figure out how many characters to use for nums, punc, and a word
-    
+    println!("Getting range for numlen: {} {}", 1, len-minword-1);
     let numlen: u8 = match nums {
-        true if len-minword-1 > 1 => safe_range(1, len-minword-1),
+        true if len-minword-1 > 1 => rg.gen_range(1, len-minword-1),
         true => 1,
         false => 0,
     };
-    
+    println!("Getting range for punclen: {} {}", 1, len-minword-numlen);
     let punclen: u8 = match punc {
-        true if len-minword-numlen > 1 => safe_range(1, len-minword-numlen),
+        true if len-minword-numlen > 1 => rg.gen_range(1, len-minword-numlen),
         true => 1,
         false => 0,
     };
     len = len-numlen-punclen;
     
-    println!("transform()\nlen={}\nnumlen={}\npunclen={}", len, numlen, punclen);
-    
     // Get a word and start mutating
-    println!("Getting and mutating word");
     let mut word: String = mutate_word(get_word(dict, len));
     word = capitalize(&word);
     if nums {
-        println!("Adding numbers");
         word = add_numbers(&word, numlen);
     }
     if punc {
-        println!("Adding punctuation");
         word = add_punctuation(&word, punclen, special);
     }
     word
@@ -120,52 +113,27 @@ pub fn transform(dict: &HashMap<u8, Vec<String>>, length: u8, caps: bool, nums: 
     
 }
 
-// let rand = safe_range(0, 9);
+// let rand = rg.gen_range(0, 9);
 // rg.shuffle(&mut an_array[..]);
-   
-   /* 
-fn in_vec<T, S>(v: &Vec<T>, item: usize) -> bool {
-    for i in v {
-        match v.get(i) {
-            Some(a) => return true,
-            None => {},
-        }
-        /*
-        if v.get(i) == item {
-            return true;
-        }
-        */
-    }
-    false
-}
-*/
+    
 
 fn mutate_word(word: &str) -> String {
     let mut rg = thread_rng();
     
     let mut new = String::with_capacity(word.len());
     let len = word.len();
-    
-    let num = safe_range(1, len/2);
+    println!("Getting range for mutate_word() len: {} {}", 1, len/2);
+    let num = rg.gen_range(1, len/2);
     
     // let mut letters = [0..word.len()];
-    // let mut letters = vec![0..word.len()];
-    
-    let mut letters = Vec::new();
-    for i in 0..word.len() {
-        letters.push(i);
-    }
-    
+    let mut letters = vec![0..word.len()];
     rg.shuffle(&mut letters);
     
     let changes = &letters[0..num];
     // new = word.to_string();
     for i in 0..word.len() {
         let letter = &word[i..i+1];
-        
-        if changes.contains(&i) {
-        // if changes.contains(&(i..i+1)) {
-        // if in_vec(&letters, i) {
+        if changes.contains(&(i..i+1)) {
             match letter {
                 "a" | "e" | "i" | "o" | "u" | "y" => {
                     new.push_str(&change_vowel(&letter));
@@ -178,7 +146,6 @@ fn mutate_word(word: &str) -> String {
             new.push_str(letter);
         }
     }
-    println!("mutate_word():\n\tOriginal = {}\n\tMutated word = {}", word, new);
     new
 }
 
@@ -196,7 +163,6 @@ fn change_vowel(letter: &str) -> String {
             None => "'",
         };
     }
-    println!("\tchaneg_vowel(letter={}) -> {}", letter, choice.to_string());
     choice.to_string()
 }
 
@@ -214,21 +180,20 @@ fn change_consonant(letter: &str) -> String {
             None => "'",
         };
     }
-    println!("\tchaneg_consonant(letter={}) -> {}", letter, choice.to_string());
     choice.to_string()
 }
 
 fn capitalize(word: &str) -> String {
     let mut rg = thread_rng();
-    let num = safe_range(1, word.len()-1) as u8;
+    let num = rg.gen_range(1, word.len()-1) as u8;
     
     // figure out which letters to capitalize
     let mut v = Vec::new();
     for _ in 0..num {
-        
-        let mut c = safe_range(0, word.len()-1);
+        println!("Getting range for figure cap: {} {}", 0, word.len()-1);
+        let mut c = rg.gen_range(0, word.len()-1);
         while v.contains(&c) {
-            c = safe_range(0, word.len()-1);
+            c = rg.gen_range(0, word.len()-1);
         }
         v.push(c);
     }
@@ -244,7 +209,6 @@ fn capitalize(word: &str) -> String {
             new.push_str(&word[l..l+1]);
         }
     }
-    println!("capitalize():\n\tOriginal = {}\n\tCapitalized = {}", word, new);
     new
     
 }
@@ -253,10 +217,9 @@ fn add_numbers(word: &str, num: u8) -> String {
     let mut new = String::with_capacity(word.len()+(num as usize));
     let mut rg = thread_rng();
     for _ in 0..num {
-        let ins = safe_range(0, 9);
+        let ins = rg.gen_range(0, 9);
         new = random_insert(&new, &ins.to_string());
     }
-    println!("add_numbers():\n\tOriginal = {}\n\twith_numbers = {}", word, new);
     new
 }
 
@@ -269,18 +232,17 @@ fn add_punctuation(word: &str, num: u8, special: &str) -> String {
         special
     };
     for _ in 0..num {
-        
-        let ins = safe_range(0, punclist.len());
+        println!("Getting range for punclist: {} {}", 0, punclist.len());
+        let ins = rg.gen_range(0, punclist.len());
         new = random_insert(&new, &punclist[ins..ins+1]);
     }
-    println!("add_punctuation():\n\tOriginal = {}\n\twith_punc = {}", word, new);
     new
 }
 
 fn random_insert(word: &str, character: &str) -> String {
     let mut rg = thread_rng();
-    
-    let loc = safe_range(0, word.len());
+    println!("Getting range for random_insert(): {} {}", 0, word.len());
+    let loc = rg.gen_range(0, word.len());
     let (first, last) = word.split_at(loc);
     let mut new = String::with_capacity(word.len()+character.len());
     new.push_str(first);
