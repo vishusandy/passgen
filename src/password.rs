@@ -104,7 +104,6 @@ pub fn transform(dict: &HashMap<u8, Vec<String>>, length: u8, caps: bool, nums: 
     println!("transform()\nlen={}\nnumlen={}\npunclen={}", len, numlen, punclen);
     
     // Get a word and start mutating
-    println!("Getting and mutating word");
     let mut word_mutated = mutate_word(get_word(dict, len));
     
     // use the following line instead of the above to test if the 
