@@ -5,8 +5,10 @@ authors = ["Andrew Prindle <prindle.andrew@gmail.com>"]
 
 [dependencies]
 argparse = "*"
+log = "0.3.8"
 rand = "0.3.*"
 serde = "1.0.8"
 rmp-serde = "0.13.1"
-sconcat = "0.2"
 time = "0.1"
+
+# sconcat = "0.2"

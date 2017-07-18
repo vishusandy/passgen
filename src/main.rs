@@ -1,10 +1,11 @@
 
+#[macro_use] 
+extern crate log;
+
 extern crate argparse;
-#[macro_use] extern crate log;
 extern crate rand;
 extern crate rmp_serde as rmps;
 extern crate serde;
-extern crate sconcat;
 extern crate time;
 
 mod dictsort;
@@ -19,6 +20,7 @@ fn main() {
     let start = Instant::now();
     #[allow(unused_assignments)]
     let mut dict: HashMap<u8, Vec<String>> = HashMap::new();
+    
     // dict = getcfg("words-sorted.bin");
     
     // getdict(savefile, plurals, output)
@@ -27,7 +29,7 @@ fn main() {
     // wordlengths(&dict);
     
     // dict len caps nums punc special
-    let pass = transform(&dict, 8, true, false, false, "");
+    let pass = transform(&dict, 10, true, true, true, "");
     println!("Password: {}", pass);
     
     let end = start.elapsed();
