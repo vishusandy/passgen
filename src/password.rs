@@ -1,6 +1,6 @@
 // Todo: add a leet function that will be randomly convert 
 //       random letters into 1337 speak
-
+// Todo: add number of passwords to generate
 use rand::{thread_rng, Rng};
 use rand::distributions::range::SampleRange;
 use std::collections::HashMap;
@@ -90,19 +90,37 @@ pub fn transform(dict: &HashMap<u8, Vec<String>>, length: u8, caps: bool, nums: 
     // Figure out how many characters to use for nums, punc, and a word
     
     let numlen: u8 = match nums {
-        true if len-minword-1 > 1 => safe_range(1, len-minword-1),
-        true => 1,
+        true => {
+            match len {
+                n if n <= minword => 0,
+                n if n < 5 => 1,
+                n if n < 7 => safe_range(1, 2),
+                n if n < 11 => safe_range(2, 3),
+                n if n >= 11 => safe_range(2, 4),
+                _ => 1,
+            }
+        },
         false => 0,
     };
     
     let punclen: u8 = match punc {
-        true if len-minword-numlen > 1 => safe_range(1, len-minword-numlen),
-        true => 1,
+        true => {
+            match len-numlen {
+                p if p <= minword => 0,
+                p if p < 5 => 1,
+                p if p < 7 => safe_range(1, 2),
+                p if p < 11 => safe_range(2, 3),
+                p if p >= 11 => safe_range(2, 4),
+                _ => 1,
+            }
+        }
         false => 0,
     };
+    
+    
     len = len-numlen-punclen;
     
-    debug!("transform()\nlen={}\nnumlen={}\npunclen={}", len, numlen, punclen);
+    println!("transform()\nlen={}\tnumlen={}\tpunclen={}", len, numlen, punclen);
     
     // Get a word and start mutating
     let mut word_mutated = mutate_word(get_word(dict, len));
@@ -110,13 +128,13 @@ pub fn transform(dict: &HashMap<u8, Vec<String>>, length: u8, caps: bool, nums: 
     // use the following line instead of the above to test if the 
     // mutated word exists in the dictionary and do a retry
     
-    // let mut word_mutated = get_word(dict, len).to_string();
+    // word_mutated = get_word(dict, len).to_string();
     
     if let Some(v) = dict.get(&(word_mutated.len() as u8)) {
-        info!("Mutated word `{}` exists in dictionary, retrying", word_mutated);
         while v.contains(&word_mutated) {
+            println!("Mutated word `{}` exists in dictionary, retrying", word_mutated);
             word_mutated = mutate_word(get_word(dict, len));
-            info!("Retry result: {}", word_mutated);
+            println!("Retry result: {}", word_mutated);
         }
     }
     
@@ -250,7 +268,73 @@ fn capitalize(word: &str) -> String {
     
 }
 
+fn random_insert(word: &str, character: &str) -> String {
+    let loc = safe_range(0, word.len());
+    let mut new = String::with_capacity(word.len()+1);
+    
+    // 0123456789
+    // parachute
+    // rand=3
+    // para0chute
+    
+    // fix indexing 
+    
+    // if loc == 0 {
+    if loc == 0 {
+        new.push_str(character);
+        new.push_str(word);
+    // } else if loc == 0 {
+    } else if loc == word.len() {
+        new.push_str(word);
+        new.push_str(character);
+    } else {
+        // 01234
+        // test
+        // character=9
+        // loc=rand(0,4) = 
+        /*  0 9test
+            1 t9est [0..loc(1)] + 9 + [loc(1)..]
+            2 te9st [0..loc(2)] + 9 + [loc(2)..]
+            3 tes9t [0..loc(3)] + 9 + [loc(3)..]
+            4 test9 
+        */
+        
+        let b = &word[..loc];
+        let e = &word[loc..];
+        new.push_str(b);
+        new.push_str(character);
+        new.push_str(e);
+    }
+    new
+}
+
 fn add_numbers(word: &str, num: u8) -> String {
+    let mut new = String::with_capacity(word.len()+(num as usize));
+    new = word.to_string();
+    for _ in 0..num {
+        new = random_insert(&new, &(safe_range(0, 9).to_string()));
+    }
+    new
+}
+
+fn add_punctuation(word: &str, num: u8, special: &str) -> String {
+    let pchars = if special == "" { ",.?-/+*=_@#$%^&()" } else { special };
+    let mut new = String::with_capacity(word.len()+(num as usize));
+    new = word.to_string();
+    for _ in 0..num {
+        // 012345
+        // insert
+        // 0 i [0..1]
+        // ...
+        // 5 t [5..6]
+        let ins = safe_range(0, pchars.len()-1);
+        new = random_insert(&new, &pchars[ins..ins+1])
+        // new = random_insert(&new, &(safe_range(0, 9).to_string()));
+    }
+    new
+}
+
+fn add_numbers0(word: &str, num: u8) -> String {
     let mut rg = thread_rng();
     let mut p = Vec::new();
     for i in 0..word.len()+1 {
@@ -259,16 +343,16 @@ fn add_numbers(word: &str, num: u8) -> String {
     rg.shuffle(&mut p);
     let mut places = Vec::new();
     for i in 0..num {
-        places.push(p[i as usize]);
+        places.push(p[i as usize]); // THIS LINE PANICS
     }
-    
+
     let mut new = String::with_capacity(word.len()+(num as usize));
     let mut widx = 0usize;
     for i in 0..word.len()+(num as usize) {
-        if places.contains(&i) {
+        if places.contains(&i) { // If the current place is in the list of places to insert a number to
             let rand = safe_range(0,9);
             new.push_str(&rand.to_string());
-        } else {
+        } else { // If current place doesn't need a random insert
             new.push_str(&word[widx..widx+1]);
             widx += 1;
         }
@@ -276,7 +360,7 @@ fn add_numbers(word: &str, num: u8) -> String {
     new
 }
 
-fn add_punctuation(word: &str, num: u8, special: &str) -> String {
+fn add_punctuation0(word: &str, num: u8, special: &str) -> String {
     let mut rg = thread_rng();
     let mut p = Vec::new();
     for i in 0..word.len()+1 {
