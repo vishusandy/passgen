@@ -21,15 +21,22 @@ fn main() {
     #[allow(unused_assignments)]
     let mut dict: HashMap<u8, Vec<String>> = HashMap::new();
     
-    // dict = getcfg("words-sorted.bin");
     
+    // TODO: save serialized file if it does not exist,
+    //       if it does exist read and deserialize the file
+    //         on error read the words.txt file
+    
+    // Retrieves serialized HashMap from the specified file
+    // dict = getcfg("words-sorted.bin");
     // getdict(savefile, plurals, output)
+
     dict = getdict(false, false, false);
     
+    // Prints wordlength information
     // wordlengths(&dict);
     
     // dict len caps nums punc special
-    let pass = transform(&dict, 10, true, true, true, "");
+    let pass = transform(&dict, 10, true, false, false, "");
     println!("Password: {}", pass);
     
     let end = start.elapsed();
