@@ -116,12 +116,6 @@ pub fn transform(dict: &HashMap<u8, Vec<String>>, length: u8, caps: bool, nums: 
             info!("Retry result: {}", word_mutated);
         }
     }
-    /*
-    let mut word_capitalized = word_mutated;
-    if caps {
-        word_capitalized = capitalize(&word_mutated);
-    }
-    */
     
     debug!("Mutated word: {}", &word_mutated);
     
