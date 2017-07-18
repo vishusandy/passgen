@@ -1,3 +1,6 @@
+// Todo: add a leet function that will be randomly convert 
+//       random letters into 1337 speak
+
 use rand::{thread_rng, Rng};
 use rand::distributions::range::SampleRange;
 use std::collections::HashMap;

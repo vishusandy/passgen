@@ -11,6 +11,7 @@ extern crate time;
 mod dictsort;
 mod password;
 
+use argparse::{ArgumentParser, StoreTrue, Store};
 use dictsort::*;
 use password::*;
 use std::collections::HashMap;
@@ -34,9 +35,25 @@ fn main() {
     
     // Prints wordlength information
     // wordlengths(&dict);
+    let mut passlen: u8 = 8;
+    let mut passcaps = false;
+    let mut passnums = false;
+    let mut passpunc = false;
+    let mut specpunc = "".to_string();
+    {
+        let mut ap = ArgumentParser::new();
+        ap.set_description("Smart password generator.  Generates passwords based on dictionary words but does not use actual words so as to avoid dictionary attacks.");
+        ap.refer(&mut passlen).add_option(&["-l", "--length"], Store, "Desired password length");
+        ap.refer(&mut passcaps).add_option(&["-c", "--capitalize"], StoreTrue, "Randomly capitalize letters in the password");
+        ap.refer(&mut passnums).add_option(&["-n", "--numbers"], StoreTrue, "Randomly add randdom numbers");
+        ap.refer(&mut passpunc).add_option(&["-p", "--punctuation"], StoreTrue, "Randomly add punctuation characters");
+        ap.refer(&mut specpunc).add_option(&["-s", "--custom"], Store, "Use a special list of punctuation characters.");
+        ap.parse_args_or_exit();
+    }
+    // ap.refer(&mut pass).add_option(&["-", "--"], StoreTrue, "");
     
     // dict len caps nums punc special
-    let pass = transform(&dict, 10, true, false, false, "");
+    let pass = transform(&dict, passlen, passcaps, passnums, passpunc, &specpunc);
     println!("Password: {}", pass);
     
     let end = start.elapsed();
