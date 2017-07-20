@@ -232,7 +232,7 @@ fn mutate_word(word: &str) -> String {
         }
     }
     // debug!("mutate_word():\n\tOriginal = {}\n\tMutated word = {}", word, new);
-    print!("\tDictionary word: {}\nMutated word: {}", word, new);
+    println!("Dictionary word: {}\tMutated word: {}", word, new);
     new
 }
 
@@ -317,7 +317,7 @@ fn leet_speak(word: &str, adv: bool) -> Option<String > {
     rg.shuffle(&mut idxs);
     
     if idxs.len() > 0 {
-        let num = safe_range(1, idxs.len());
+        let num = safe_range(1, idxs.len()/2);
         let mut leets = Vec::new();
         // and then take a random number of leet idxs
         for i in 0..num {
@@ -350,7 +350,7 @@ fn leet_speak(word: &str, adv: bool) -> Option<String > {
                 new.push_str(&word[i..i+1]);
             }
         }
-        print!("\tDictionary word: {}\nLeet speak word: {}", word, new);
+        println!("Dictionary word: {}\tLeet speak word: {}", word, new);
         Some(new)
     } else {
         // no leet characters to transform
