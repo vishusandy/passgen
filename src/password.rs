@@ -1,8 +1,8 @@
-// Todo: add a leet function that will be randomly convert 
-//       random letters into 1337 speak
-// Todo: add number of passwords to generate
-// Todo: add guard in vowel/consonants to check if letter is a y it is
-//         only a vowel when not at the end of a word
+// make a substr function and have functions use that instead
+//   of iterating through the word
+// also make a function that either returns the letter at a 
+//   given positino or modifies a letter at a given position
+//   by using a closure to determine the transformation
 
 // use leet::*;
 use rand::{thread_rng, Rng};

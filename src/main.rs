@@ -1,4 +1,7 @@
 
+// Todo: change getdict to getdict(filename: &str, plurals: bool, output: bool)
+
+
 #[macro_use] 
 extern crate log;
 
@@ -50,7 +53,6 @@ fn main() {
         ap.refer(&mut passlen).add_option(&["-l", "--length"], Store, "Desired password length.");
         ap.refer(&mut passcaps).add_option(&["-c", "--capitalize"], StoreTrue, "Randomly capitalize letters in the password.");
         ap.refer(&mut passnums).add_option(&["-n", "--numbers"], StoreTrue, "Randomly add random numbers.");
-        // ap.refer(&mut passleet).add_option(&["-e", "--leet"], StoreTrue, "Leet speak, overrides numbers option.  If punctuation option is present advanced leet is used.")
         ap.refer(&mut passleet).add_option(&["-e", "--leet"], StoreTrue, "Leet speak, overrides numbers option.  If punctuation option is present advanced leet is used.");
         ap.refer(&mut passpunc).add_option(&["-p", "--punctuation"], StoreTrue, "Randomly add punctuation character.s");
         ap.refer(&mut specpunc).add_option(&["-s", "--custom"], Store, "Use a special list of punctuation characters.");
