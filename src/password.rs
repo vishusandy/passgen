@@ -1,8 +1,9 @@
-// make a substr function and have functions use that instead
-//   of iterating through the word
-// also make a function that either returns the letter at a 
-//   given positino or modifies a letter at a given position
-//   by using a closure to determine the transformation
+//  Todo: cleanup warnings
+    // make a substr function and have functions use that instead
+    //   of iterating through the word
+    // also make a function that either returns the letter at a 
+    //   given positino or modifies a letter at a given position
+    //   by using a closure to determine the transformation
 
 // use leet::*;
 use rand::{thread_rng, Rng};
@@ -87,9 +88,9 @@ fn is_word(dict: &HashMap<u8, Vec<String>>, word: &str) -> bool {
     special &str    use special set of punctuation
 */
 
-pub fn transform(dict: &HashMap<u8, Vec<String>>, length: u8, caps: bool, mut  nums: bool, leet: bool, mut punc: bool, special: &str) -> String {
+pub fn transform(dict: &HashMap<u8, Vec<String>>, length: u8, caps: bool, nums: bool, leet: bool, punc: bool, special: &str) -> String {
     // leet_speak numbers punctuation 
-    let mut words = Vec::<String>::new();
+    // let words = Vec::<String>::new();
     let minword = 2;
     let mut len: u8 = length;
     
@@ -103,8 +104,8 @@ pub fn transform(dict: &HashMap<u8, Vec<String>>, length: u8, caps: bool, mut  n
         len = minword;
     }
     
-    let mut numlen: u8;
-    let mut punclen: u8;
+    let numlen: u8;
+    let punclen: u8;
     
     // choose either numbers or punctuation to allocate first to avoid bias
     //   then allocate a number of characters for each if applicable
@@ -134,7 +135,7 @@ pub fn transform(dict: &HashMap<u8, Vec<String>>, length: u8, caps: bool, mut  n
     // if (leet == false || (leet == true && !punc)) && numlen > 0 run add_numbers()
     
     if leet {
-        let mut step0 = get_word(dict, len);
+        let step0 = get_word(dict, len);
         let rst =  leet_speak(&step0, punc);
         match rst {
             Some(w) => {

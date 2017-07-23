@@ -15,9 +15,38 @@ use std::io::prelude::*;
 use serde::{Serialize, Deserialize};
 use rmps::{Serializer, Deserializer};
 
+// use dictionary::WORDLIST;
+use dictionary::{SERIALIZED_DICT, WORDLIST};
+
 // getcfg() reads the hashmap dictionary (grouped by word lengths) from file
 #[allow(dead_code)]
-pub fn getcfg(file: &str) -> HashMap<u8, Vec<String>> {
+pub fn deserialize_dict() -> HashMap<u8, Vec<String>> {
+    // let mut buf = Vec::new();
+    
+    // let mut f = File::open(file).expect("Could not open dictionary");
+    // #[allow(unused_must_use)]
+    
+    let mut ds = Deserializer::new(&SERIALIZED_DICT[..]);
+    Deserialize::deserialize(&mut ds).expect("Could not deserialize dictionary data")
+    
+    /*
+    match f.read_to_end(&mut buf) {
+        Ok(_) => {
+            // let mut ds = Deserializer::new(&buf[..]);
+            let mut ds = Deserializer::new(&SERIALIZED_DICT[..]);
+            Deserialize::deserialize(&mut ds).expect("Could not deserialize dictionary data")
+        },
+        _ => {
+            println!("Could not deserialize dictionary properly.");
+            HashMap::new()
+        },
+    }
+    */
+    // dict
+}
+
+#[allow(dead_code)]
+pub fn deserialize_dict_original(file: &str) -> HashMap<u8, Vec<String>> {
     let mut buf = Vec::new();
     let mut f = File::open(file).expect("Could not open dictionary");
     #[allow(unused_must_use)]
@@ -33,19 +62,18 @@ pub fn getcfg(file: &str) -> HashMap<u8, Vec<String>> {
     // dict
 }
 
-// reads words.txt and returns hashmap dictionary and optionally saves dictionary to file
 #[allow(dead_code)]
-pub fn getdict(savefile: bool, plurals: bool, output: bool) -> HashMap<u8, Vec<String>> {
+pub fn get_dict(plurals: bool, output: bool) -> HashMap<u8, Vec<String>> {
     // let start = Instant::now();
-    #[allow(non_snake_case)]
-    let WORDSTR: &'static str = include_str!("words.txt");
+    // #[allow(non_snake_case)]
+    // let WORDLIST: &'static str = include_str!("words.txt");
     
     #[allow(unused_assignments)]
     let mut dict: HashMap<u8, Vec<String>> = HashMap::new();
     
     let mut count = 0u64;
     let mut cap = 0u64;
-    for line in WORDSTR.lines() {
+    for line in WORDLIST.lines() {
         
         let mut word = line.to_string();
         if word.ends_with("%") {
@@ -61,13 +89,53 @@ pub fn getdict(savefile: bool, plurals: bool, output: bool) -> HashMap<u8, Vec<S
         count += 1;
     }
     let bufcap = count * 9;
-    if savefile {
-        let mut buf = Vec::with_capacity((bufcap) as usize);
-        dict.serialize(&mut Serializer::new(&mut buf)).expect("Could not serialize dictionary");
-        let mut f = BufWriter::new(File::create("sorted.bin").expect("Could not create output file"));
-        #[allow(unused_must_use)]
-        f.write(&buf).expect("Could not write to file");
+    if output {
+        println!("# Words: {}\nCapacity: {}\nBuffer Capacity: {}", count, cap, bufcap);
     }
+    
+    dict
+}
+
+// reads words.txt and returns hashmap dictionary and optionally saves dictionary to file
+#[allow(dead_code)]
+pub fn save_dict(mut savefile: &str, plurals: bool, output: bool) -> HashMap<u8, Vec<String>> {
+    // let start = Instant::now();
+    // #[allow(non_snake_case)]
+    // let WORDLIST: &'static str = include_str!("words.txt");
+    
+    #[allow(unused_assignments)]
+    let mut dict: HashMap<u8, Vec<String>> = HashMap::new();
+    
+    let mut count = 0u64;
+    let mut cap = 0u64;
+    for line in WORDLIST.lines() {
+        
+        let mut word = line.to_string();
+        if word.ends_with("%") {
+            if !plurals {
+                continue;
+            }
+            word.pop();
+        }
+        cap += word.len() as u64;
+        let len = word.len();
+        let b = dict.entry(len as u8).or_insert(Vec::new());
+        b.push(word);
+        count += 1;
+    }
+    let bufcap = count * 9;
+    
+    // save serialized file
+    if savefile == "" {
+        savefile = "sorted.bin";
+    }
+    let mut buf = Vec::with_capacity((bufcap) as usize);
+    dict.serialize(&mut Serializer::new(&mut buf)).expect("Could not serialize dictionary");
+    let mut f = BufWriter::new(File::create(savefile).expect("Could not create output file"));
+    
+    #[allow(unused_must_use)]
+    f.write(&buf).expect("Could not write to file");
+    
     if output {
         println!("# Words: {}\nCapacity: {}\nBuffer Capacity: {}", count, cap, bufcap);
     }
@@ -76,7 +144,7 @@ pub fn getdict(savefile: bool, plurals: bool, output: bool) -> HashMap<u8, Vec<S
 }
 
 #[allow(dead_code)]
-pub fn dictinfo(dict: &HashMap<u8, Vec<String>>) {
+pub fn dict_info(dict: &HashMap<u8, Vec<String>>) {
     let mut largest = 0u8;
     let mut lens: HashMap<u8, usize> = HashMap::new();
     for (key, v) in dict {
@@ -93,7 +161,7 @@ pub fn dictinfo(dict: &HashMap<u8, Vec<String>>) {
 
 
 #[allow(dead_code)]
-pub fn wordlengths(dict: &HashMap<u8, Vec<String>>) {
+pub fn word_lengths(dict: &HashMap<u8, Vec<String>>) {
     let mut largest = 0u8;
     let mut lens: HashMap<u8, usize> = HashMap::new();
     for key in 1..30 {

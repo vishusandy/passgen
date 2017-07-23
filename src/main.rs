@@ -1,6 +1,9 @@
 
-// Todo: change getdict to getdict(filename: &str, plurals: bool, output: bool)
-
+// Todo: change get_dict to get_dict(plurals: bool, output: bool)
+//           which only fills a hashmap and does not save a serialized map
+//         and add a save_dict(filename: &str, plurals: bool, output: bool)
+//           which will return a hasmap and save the serialized hashmap to file
+//         change getcfg() to deserialize_dict
 
 #[macro_use] 
 extern crate log;
@@ -13,7 +16,7 @@ extern crate time;
 
 mod dictsort;
 mod password;
-mod leet;
+mod dictionary;
 
 use argparse::{ArgumentParser, StoreTrue, Store};
 use dictsort::*;
@@ -32,11 +35,18 @@ fn main() {
     //       if it does exist read and deserialize the file
     //         on error read the words.txt file
     
-    // Retrieves serialized HashMap from the specified file
-    // dict = getcfg("words-sorted.bin");
-    // getdict(savefile, plurals, output)
-
-    dict = getdict(false, false, false);
+    
+    // dict_info(dict)
+    // word_lengths(dict)
+    
+    // deserialize_dict(file: &str)
+    // get_dict(plurals: bool, outout: bool)
+    // save_dict(savefile: &str, plurals: bool, output: bool)
+    
+    
+    // dict = get_dict(false, false);
+    // dict = deserialize_dict();
+    dict = get_dict(true, false);
     
     // Prints wordlength information
     // wordlengths(&dict);
@@ -79,6 +89,7 @@ fn main() {
         println!("Password: {}", pass);
     
     }
+    // println!("Testing 98_222: {:?}", 98_222);
     
     let end = start.elapsed();
     println!("Exec time: {}.{:08}", end.as_secs(), end.subsec_nanos());
