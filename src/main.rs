@@ -1,9 +1,6 @@
-
-// Todo: change get_dict to get_dict(plurals: bool, output: bool)
-//           which only fills a hashmap and does not save a serialized map
-//         and add a save_dict(filename: &str, plurals: bool, output: bool)
-//           which will return a hasmap and save the serialized hashmap to file
-//         change getcfg() to deserialize_dict
+// TODO: save serialized file if it does not exist,
+//       if it does exist read and deserialize the file
+//         on error read the words.txt file
 
 #[macro_use] 
 extern crate log;
@@ -14,31 +11,33 @@ extern crate rmp_serde as rmps;
 extern crate serde;
 extern crate time;
 
-mod dictsort;
-mod password;
+// mod dictsort;
+mod dict_code_all;
+mod dict_code_noplurals;
+mod create_dictionary;
+// mod password;
+mod passwords;
 mod dictionary;
 
 use argparse::{ArgumentParser, StoreTrue, Store};
-use dictsort::*;
+// use dictsort::*;
+use create_dictionary::*;
+use dict_code_all::*;
+use dict_code_noplurals::*;
 // use leet::*;
-use password::*;
+use passwords::*;
 use std::collections::HashMap;
 use std::time::Instant;
+use std::path::Path;
 
 fn main() {
     let start = Instant::now();
     #[allow(unused_assignments)]
-    let mut dict: HashMap<u8, Vec<String>> = HashMap::new();
-    
-    
-    // TODO: save serialized file if it does not exist,
-    //       if it does exist read and deserialize the file
-    //         on error read the words.txt file
+    // let mut dict: HashMap<u8, Vec<String>> = HashMap::new();
     
     
     // dict_info(dict)
     // word_lengths(dict)
-    
     // deserialize_dict(file: &str)
     // get_dict(plurals: bool, outout: bool)
     // save_dict(savefile: &str, plurals: bool, output: bool)
@@ -46,7 +45,54 @@ fn main() {
     
     // dict = get_dict(false, false);
     // dict = deserialize_dict();
-    dict = get_dict(true, false);
+    
+    
+    // dict = get_dict(true, false);
+    
+    // let mut dict2: HashMap<u8, Vec<&'static str>> = save_dict2("str_dict.bin", true, true);
+    
+    let mut dict: HashMap<u8, Vec<&'static str>> = HashMap::new();
+    let mut dict_nop: HashMap<u8, Vec<&'static str>> = HashMap::new();
+    if Path::new("passgen_dict.msgpack").exists() {
+        add_dict_all(&mut dict);
+    } else {
+        dict = save_dict("passgen_dict.msgpack", true, false);
+    }
+    
+    if Path::new("passgen_dict_noplurals.msgpack").exists() {
+        add_dict_nop(&mut dict_nop);
+    } else {
+        dict_nop = save_dict("passgen_dict_noplurals.msgpack", false, false);
+    }
+    
+    
+/*    let mut dict: HashMap<u8, Vec<&'static str>> = if Path::new("passgen_dict.msgpack").exists() {
+        // get_dict(true, true)
+        DICT_PLURALS
+    } else {
+        println!("Generating passgen_dict.msgpack");
+        save_dict("passgen_dict.msgpack", true, true)
+    };
+    
+    let mut dict_nop: HashMap<u8, Vec<&'static str>> = if Path::new("passgen_dict_noplurals.msgpack").exists() {
+        // get_dict(false, true)
+        DICT_NOPLURALS
+    } else {
+        println!("Generating passgen_dict_noplurals.msgpack");
+        save_dict("passgen_dict_noplurals.msgpack", false, true)
+    };*/
+    
+    // let mut dict_nop: HashMap<u8, Vec<&'static str>> = dict = get_dict(false, true);
+    
+    let after_dict = start.elapsed();
+    
+    if !Path::new("dict_code_all.rs").exists() {
+        save_dict_code("add_dict_all", &dict, "dict_code_all.rs");
+    }
+    if !Path::new("dict_code_noplurals.rs").exists() {
+        save_dict_code("add_dict_nop", &dict_nop, "dict_code_noplurals.rs");
+    }
+    let after_codegen = start.elapsed();
     
     // Prints wordlength information
     // wordlengths(&dict);
@@ -80,10 +126,12 @@ fn main() {
     if numwords > 20 {
         numwords = 20;
     }
+    let after_args = start.elapsed();
     
     for _ in 0..numwords {
     
         // dict len caps nums punc special
+        // let pass = transform(&dict, passlen, passcaps, passnums, passleet, passpunc, &specpunc);
         let pass = transform(&dict, passlen, passcaps, passnums, passleet, passpunc, &specpunc);
 
         println!("Password: {}", pass);
@@ -91,6 +139,23 @@ fn main() {
     }
     // println!("Testing 98_222: {:?}", 98_222);
     
+    // after_dict
+    // after_codegen
+    // after_args
+    // end
+    
     let end = start.elapsed();
-    println!("Exec time: {}.{:08}", end.as_secs(), end.subsec_nanos());
+    let dict_time = after_dict;
+    let code_time = after_codegen - dict_time;
+    let args_time = after_args - code_time - dict_time;
+    let gen_time = end - args_time - code_time - dict_time;
+    
+    // let args_time = after_args - dict_time;
+    
+    println!("Dictionary creation time: {}.{:08}", dict_time.as_secs(), dict_time.subsec_nanos());
+    println!("Argument parsing time: {}.{:08}", args_time.as_secs(), args_time.subsec_nanos());
+    println!("Password generation time: {}.{:08}", gen_time.as_secs(), gen_time.subsec_nanos());
+    println!("Dictionary code generation time: {}.{:08}", code_time.as_secs(), code_time.subsec_nanos());
+    println!("\nExec time: {}.{:08}", end.as_secs(), end.subsec_nanos());
+    
 }

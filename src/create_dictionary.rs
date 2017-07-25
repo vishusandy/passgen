@@ -16,72 +16,43 @@ use serde::{Serialize, Deserialize};
 use rmps::{Serializer, Deserializer};
 
 // use dictionary::WORDLIST;
-use dictionary::{SERIALIZED_DICT, SERIALIZED_DICT_STR, WORDLIST};
+// use dictionary::{SERIALIZED_DICT, SERIALIZED_DICT_STR, WORDLIST};
+use dictionary::{SERIALIZED_DICT_STR, WORDLIST};
 
-// getcfg() reads the hashmap dictionary (grouped by word lengths) from file
-#[allow(dead_code)]
-pub fn deserialize_dict() -> HashMap<u8, Vec<String>> {
+
+pub fn deserialize_dict() -> HashMap<u8, Vec<&'static str>> {
     // let mut buf = Vec::new();
     
     // let mut f = File::open(file).expect("Could not open dictionary");
     // #[allow(unused_must_use)]
     
-    let mut ds = Deserializer::new(&SERIALIZED_DICT[..]);
+    let mut ds = Deserializer::new(&SERIALIZED_DICT_STR[..]);
     Deserialize::deserialize(&mut ds).expect("Could not deserialize dictionary data")
     
-    /*
-    match f.read_to_end(&mut buf) {
-        Ok(_) => {
-            // let mut ds = Deserializer::new(&buf[..]);
-            let mut ds = Deserializer::new(&SERIALIZED_DICT[..]);
-            Deserialize::deserialize(&mut ds).expect("Could not deserialize dictionary data")
-        },
-        _ => {
-            println!("Could not deserialize dictionary properly.");
-            HashMap::new()
-        },
-    }
-    */
-    // dict
 }
 
 
 #[allow(dead_code)]
-pub fn deserialize_dict_original(file: &str) -> HashMap<u8, Vec<String>> {
-    let mut buf = Vec::new();
-    let mut f = File::open(file).expect("Could not open dictionary");
-    #[allow(unused_must_use)]
-    match f.read_to_end(&mut buf) {
-        Ok(_) => {
-            let mut ds = Deserializer::new(&buf[..]);
-            Deserialize::deserialize(&mut ds).expect("Could not deserialize dictionary data")
-        },
-        _ => {
-            HashMap::new()
-        },
-    }
-    // dict
-}
-
-#[allow(dead_code)]
-pub fn get_dict(plurals: bool, output: bool) -> HashMap<u8, Vec<String>> {
+pub fn get_dict(plurals: bool, output: bool) -> HashMap<u8, Vec<&'static str>> {
     // let start = Instant::now();
     // #[allow(non_snake_case)]
     // let WORDLIST: &'static str = include_str!("words.txt");
     
     #[allow(unused_assignments)]
-    let mut dict: HashMap<u8, Vec<String>> = HashMap::new();
+    let mut dict: HashMap<u8, Vec<&'static str>> = HashMap::new();
     
     let mut count = 0u64;
     let mut cap = 0u64;
     for line in WORDLIST.lines() {
         
-        let mut word = line.to_string();
-        if word.ends_with("%") {
+        let word: &str;
+        if &line[line.len()-1..line.len()] == "%" {
             if !plurals {
                 continue;
             }
-            word.pop();
+            word = &line[..line.len()-1];
+        } else {
+            word = line;
         }
         cap += word.len() as u64;
         let len = word.len();
@@ -90,6 +61,7 @@ pub fn get_dict(plurals: bool, output: bool) -> HashMap<u8, Vec<String>> {
         count += 1;
     }
     let bufcap = count * 9;
+    
     if output {
         println!("# Words: {}\nCapacity: {}\nBuffer Capacity: {}", count, cap, bufcap);
     }
@@ -98,26 +70,26 @@ pub fn get_dict(plurals: bool, output: bool) -> HashMap<u8, Vec<String>> {
 }
 
 
-// reads words.txt and returns hashmap dictionary and optionally saves dictionary to file
-#[allow(dead_code)]
-pub fn save_dict(mut savefile: &str, plurals: bool, output: bool) -> HashMap<u8, Vec<String>> {
+pub fn save_dict(mut savefile: &str, plurals: bool, output: bool) -> HashMap<u8, Vec<&'static str>> {
     // let start = Instant::now();
     // #[allow(non_snake_case)]
     // let WORDLIST: &'static str = include_str!("words.txt");
     
     #[allow(unused_assignments)]
-    let mut dict: HashMap<u8, Vec<String>> = HashMap::new();
+    let mut dict: HashMap<u8, Vec<&'static str>> = HashMap::new();
     
     let mut count = 0u64;
     let mut cap = 0u64;
     for line in WORDLIST.lines() {
         
-        let mut word = line.to_string();
-        if word.ends_with("%") {
+        let word: &str;
+        if &line[line.len()-1..line.len()] == "%" {
             if !plurals {
                 continue;
             }
-            word.pop();
+            word = &line[..line.len()-1];
+        } else {
+            word = line;
         }
         cap += word.len() as u64;
         let len = word.len();
@@ -145,8 +117,50 @@ pub fn save_dict(mut savefile: &str, plurals: bool, output: bool) -> HashMap<u8,
     dict
 }
 
+pub fn save_dict_code(var_name: &str, dict: &HashMap<u8, Vec<&'static str>>, savefile: &str) {
+    // let start = Instant::now();
+    // #[allow(non_snake_case)]
+    // let WORDLIST: &'static str = include_str!("words.txt");
+    
+    let mut capacity: usize = 0;
+    for (length, v) in dict {
+        capacity += v.len() * (*length as usize);
+    }
+    
+    let mut output = String::with_capacity(capacity+capacity);
+    
+    // output.push_str("let dictionary: HashMap<u8, Vec<&'static str>> = [\n");
+//     pub fn add_dict_nop(dict: &mut HashMap<u8, Vec<&'static str>>) {
+// dict.insert(2, vec![
+    
+    output.push_str("use std::collections::HashMap;\n\npub fn ");
+    output.push_str(var_name);
+    output.push_str("(dict: &mut HashMap<u8, Vec<&'static str>>) { \n");
+    for i in 0u8..30 {
+        if let Some(v) = dict.get(&i) {
+            output.push_str("\tdict.insert(");
+            output.push_str(&(i.to_string()));
+            output.push_str(", vec![\n");
+            for j in 0..v.len() {
+                output.push_str("\t\t\"");
+                output.push_str(v[j]);
+                output.push_str("\",\n");
+            }
+            output.push_str("\t]);\n");
+        }
+    }
+    output.push_str("}");
+    // output.push_str("].iter().cloned().collect();");
+    
+    let mut f = BufWriter::new(File::create(savefile).expect("Could not save dictionary code file."));
+    #[allow(unused_must_use)]
+    f.write(output.as_bytes());
+    
+}
+
+
 #[allow(dead_code)]
-pub fn dict_info(dict: &HashMap<u8, Vec<String>>) {
+pub fn dict_info(dict: &HashMap<u8, Vec<&'static str>>) {
     let mut largest = 0u8;
     let mut lens: HashMap<u8, usize> = HashMap::new();
     for (key, v) in dict {
@@ -161,11 +175,8 @@ pub fn dict_info(dict: &HashMap<u8, Vec<String>>) {
     // println!("Largest length: {}\nNumber words: {}\nCapacity: {}\nVec Cap: {}", largest);
 }
 
-
-
-
 #[allow(dead_code)]
-pub fn word_lengths(dict: &HashMap<u8, Vec<String>>) {
+pub fn word_lengths(dict: &HashMap<u8, Vec<&'static str>>) {
     let mut largest = 0u8;
     let mut lens: HashMap<u8, usize> = HashMap::new();
     for key in 1..30 {
@@ -188,5 +199,3 @@ pub fn word_lengths(dict: &HashMap<u8, Vec<String>>) {
         }
     }
 }
-
-
