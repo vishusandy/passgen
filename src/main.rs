@@ -69,8 +69,9 @@ fn main() {
     
     // let mut dict2: HashMap<u8, Vec<&'static str>> = save_dict2("str_dict.bin", true, true);
     
+    let idic = init_dict();
     
-    
+    /*
     let mut dict: HashMap<u8, Vec<&'static str>> = HashMap::new();
     let mut dict_nop: HashMap<u8, Vec<&'static str>> = HashMap::new();
     if Path::new("passgen_dict.msgpack").exists() {
@@ -84,7 +85,7 @@ fn main() {
     } else {
         dict_nop = save_dict("passgen_dict_noplurals.msgpack", false, false);
     }
-    
+    */
     
 /*    let mut dict: HashMap<u8, Vec<&'static str>> = if Path::new("passgen_dict.msgpack").exists() {
         // get_dict(true, true)
@@ -162,10 +163,12 @@ fn main() {
     
         // dict len caps nums punc special
         // let pass = transform(&dict, passlen, passcaps, passnums, passleet, passpunc, &specpunc);
-        let pass = transform(&dict, passlen, passcaps, passnums, passleet, passpunc, &specpunc);
         
-        let idic = init_dict();
-        println!("\nWord2() = {}", get_word2(&idic, passlen));
+        
+        let pass = transform(&idic, passlen, passcaps, passnums, passleet, passpunc, &specpunc);
+        
+        // println!("Apologetic: {}\nApoljetic: {}", passwords::is_word2(&idic, "apologetic"), passwords::is_word2(&idic, "apolojetic"));
+        // println!("\nWord2() = {}", get_word2(&idic, passlen));
         println!("Password: {}", pass);
     
     }

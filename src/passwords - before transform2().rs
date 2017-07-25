@@ -151,8 +151,7 @@ fn is_word(dict: &HashMap<u8, Vec<&'static str>>, word: &str) -> bool {
     special &str    use special set of punctuation
 */
 
-// pub fn transform(dict: &HashMap<u8, Vec<&'static str>>, length: u8, caps: bool, nums: bool, leet: bool, punc: bool, special: &str) -> String {
-pub fn transform(dict: &HashMap<u8, (usize, usize)>, length: u8, caps: bool, nums: bool, leet: bool, punc: bool, special: &str) -> String {
+pub fn transform(dict: &HashMap<u8, Vec<&'static str>>, length: u8, caps: bool, nums: bool, leet: bool, punc: bool, special: &str) -> String {
     // leet_speak numbers punctuation 
     // let words = Vec::<String>::new();
     let minword = 2;
@@ -201,7 +200,7 @@ pub fn transform(dict: &HashMap<u8, (usize, usize)>, length: u8, caps: bool, num
     
     
     if leet {
-        let step0 = get_word2(dict, len);
+        let step0 = get_word(dict, len);
         let rst =  leet_speak(&step0, punc);
         match rst {
             Some(w) => {
@@ -224,10 +223,10 @@ pub fn transform(dict: &HashMap<u8, (usize, usize)>, length: u8, caps: bool, num
             _ => transform(dict, length, caps, nums, false, punc, special),
         }
     } else {
-        let step0 = get_word2(dict, len);
+        let step0 = get_word(dict, len);
         let mut step1 = mutate_word(step0);
-        while is_word2(dict, &step1) {
-            step1 = mutate_word(get_word2(dict, len));
+        while is_word(dict, &step1) {
+            step1 = mutate_word(get_word(dict, len));
         }
         let step2 = match caps {
             true => capitalize(&step1),
