@@ -117,6 +117,19 @@ pub fn save_dict(mut savefile: &str, plurals: bool, output: bool) -> HashMap<u8,
     dict
 }
 
+pub fn find_dict_code(words: &str) -> Vec<u8> {
+    let mut f = BufWriter::new(File::create(savefile).expect("Could not save dictionary code file."));
+    // let output = String::new();
+    let output = String::with_capacity();
+    
+    let mut capacity: usize = 0;
+    for (length, v) in dict {
+        capacity += v.len() * (*length as usize);
+    }
+    
+    f.write(output.as_bytes());
+}
+
 pub fn save_dict_code(var_name: &str, dict: &HashMap<u8, Vec<&'static str>>, savefile: &str) {
     // let start = Instant::now();
     // #[allow(non_snake_case)]

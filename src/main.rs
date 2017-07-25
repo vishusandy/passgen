@@ -2,6 +2,19 @@
 //       if it does exist read and deserialize the file
 //         on error read the words.txt file
 
+// Todo: make the list of words a static array
+//        then make a HashMap that contains the length and an array slice
+//        update functions accordingly
+
+// Todo: fix error where requested word size is too large and get_word()
+//         returns "error"
+
+
+// Todo: try to load the words as a static array of vectors.  Then either      
+// recode the functions to take an array or change the hashmap to reference a  
+// vector and do the inserts for each length with a reference to the vector    
+// in the array index of the same length.                                      
+
 #[macro_use] 
 extern crate log;
 
@@ -15,6 +28,7 @@ extern crate time;
 mod dict_code_all;
 mod dict_code_noplurals;
 mod create_dictionary;
+mod dict_list;
 // mod password;
 mod passwords;
 mod dictionary;
@@ -24,6 +38,7 @@ use argparse::{ArgumentParser, StoreTrue, Store};
 use create_dictionary::*;
 use dict_code_all::*;
 use dict_code_noplurals::*;
+use dict_list::*;
 // use leet::*;
 use passwords::*;
 use std::collections::HashMap;
