@@ -9,6 +9,8 @@
 // Todo: fix error where requested word size is too large and get_word()
 //         returns "error"
 
+// Todo: the dict_list is for no plurals only, possibly change this?
+
 
 // Todo: try to load the words as a static array of vectors.  Then either      
 // recode the functions to take an array or change the hashmap to reference a  
@@ -29,6 +31,7 @@ mod dict_code_all;
 mod dict_code_noplurals;
 mod create_dictionary;
 mod dict_list;
+mod dict_list_all;
 // mod password;
 mod passwords;
 mod dictionary;
@@ -38,7 +41,7 @@ use argparse::{ArgumentParser, StoreTrue, Store};
 use create_dictionary::*;
 use dict_code_all::*;
 use dict_code_noplurals::*;
-use dict_list::*;
+use dict_list_all::*;
 // use leet::*;
 use passwords::*;
 use std::collections::HashMap;
@@ -65,6 +68,8 @@ fn main() {
     // dict = get_dict(true, false);
     
     // let mut dict2: HashMap<u8, Vec<&'static str>> = save_dict2("str_dict.bin", true, true);
+    
+    
     
     let mut dict: HashMap<u8, Vec<&'static str>> = HashMap::new();
     let mut dict_nop: HashMap<u8, Vec<&'static str>> = HashMap::new();
@@ -101,13 +106,23 @@ fn main() {
     
     let after_dict = start.elapsed();
     
+    
+    /*
     if !Path::new("dict_code_all.rs").exists() {
         save_dict_code("add_dict_all", &dict, "dict_code_all.rs");
     }
     if !Path::new("dict_code_noplurals.rs").exists() {
         save_dict_code("add_dict_nop", &dict_nop, "dict_code_noplurals.rs");
     }
+    */
+    
+    
+    // println!("Dictionary length slices: \n{:?}", find_dict_code(true));
+    
+    
     let after_codegen = start.elapsed();
+    
+    
     
     // Prints wordlength information
     // wordlengths(&dict);
@@ -148,7 +163,9 @@ fn main() {
         // dict len caps nums punc special
         // let pass = transform(&dict, passlen, passcaps, passnums, passleet, passpunc, &specpunc);
         let pass = transform(&dict, passlen, passcaps, passnums, passleet, passpunc, &specpunc);
-
+        
+        let idic = init_dict();
+        println!("\nWord2() = {}", get_word2(&idic, passlen));
         println!("Password: {}", pass);
     
     }
@@ -168,9 +185,9 @@ fn main() {
     // let args_time = after_args - dict_time;
     
     println!("Dictionary creation time: {}.{:08}", dict_time.as_secs(), dict_time.subsec_nanos());
+    println!("Dictionary code generation time: {}.{:08}", code_time.as_secs(), code_time.subsec_nanos());
     println!("Argument parsing time: {}.{:08}", args_time.as_secs(), args_time.subsec_nanos());
     println!("Password generation time: {}.{:08}", gen_time.as_secs(), gen_time.subsec_nanos());
-    println!("Dictionary code generation time: {}.{:08}", code_time.as_secs(), code_time.subsec_nanos());
     println!("\nExec time: {}.{:08}", end.as_secs(), end.subsec_nanos());
     
 }

@@ -6,10 +6,12 @@
     //   by using a closure to determine the transformation
 
 // use leet::*;
+use dict_list_all::*;
+use dict_list::*;
 use rand::{thread_rng, Rng};
 use rand::distributions::range::SampleRange;
 use std::collections::HashMap;
-
+ 
 fn safe_range<T: PartialOrd + SampleRange>(start: T, end: T) -> T {
     if start < end {
         let mut rg = thread_rng();
@@ -17,6 +19,50 @@ fn safe_range<T: PartialOrd + SampleRange>(start: T, end: T) -> T {
     } else {
         start
     }    
+}
+
+pub fn get_word2(dict: &HashMap<u8, (usize, usize)>, len: u8) -> &'static str {
+    
+    
+    match dict.get(&len) {
+        Some( r ) => {
+            let chosen = safe_range(r.0, r.1);
+            DICT_A_LIST[chosen]
+            // &v[safe_range(0, v.len()-1)]
+        },
+        None => {
+            #[allow(unused_assignments)]
+            let mut closest: u8 = 0;
+            let mut lower: u8 = 0;
+            let mut upper: u8 = 0;
+            // get closest length
+            for n in dict.keys() {
+                if *n < len && *n > lower {
+                    lower = *n;
+                } else if *n > len && *n < upper {
+                    upper = *n;
+                }
+            }
+            if len-lower >= upper-len {
+                closest = lower;
+            } else {
+                closest = upper;
+            }
+            match dict.get(&closest) {
+                Some( r ) => {
+                    // let out = &v[safe_range(0, v.len()-1)];
+                    let chosen = safe_range(r.0, r.1);
+                    let out = DICT_A_LIST[chosen];
+                    debug!("get_word(len={}) = {}", len, out);
+                    out
+                },
+                None => {
+                    println!("Error\nclosest: {}", closest);
+                    "error"
+                },
+            }
+        },
+    }
 }
 
 pub fn get_word(dict: &HashMap<u8, Vec<&'static str>>, len: u8) -> &'static str {

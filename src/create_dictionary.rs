@@ -7,7 +7,9 @@ extern crate time;
 extern crate serde;
 extern crate rmp_serde as rmps;
 
-#[allow(unused_imports)]
+ use dict_list_all::*;
+ use dict_list::*;
+ #[allow(unused_imports)]
 use std::collections::{HashMap, BTreeSet};
 use std::fs::File;
 use std::io::BufWriter;
@@ -19,6 +21,16 @@ use rmps::{Serializer, Deserializer};
 // use dictionary::{SERIALIZED_DICT, SERIALIZED_DICT_STR, WORDLIST};
 use dictionary::{SERIALIZED_DICT_STR, WORDLIST};
 
+pub fn init_dict() -> HashMap<u8, (usize, usize)> {
+    let mut dict: HashMap<u8, (usize, usize)> = HashMap::new();
+    let version = DICT_A_INDEXES;
+    // let version = DICT_NP_INDEXES;
+    for i in 0..version.len() {
+        dict.insert(version[i].0, (version[i].1 .0, version[i].1 .1) );
+    }
+    
+    dict
+}
 
 pub fn deserialize_dict() -> HashMap<u8, Vec<&'static str>> {
     // let mut buf = Vec::new();
@@ -117,18 +129,65 @@ pub fn save_dict(mut savefile: &str, plurals: bool, output: bool) -> HashMap<u8,
     dict
 }
 
-pub fn find_dict_code(words: &str) -> Vec<u8> {
-    let mut f = BufWriter::new(File::create(savefile).expect("Could not save dictionary code file."));
-    // let output = String::new();
-    let output = String::with_capacity();
+/*
+pub fn find_dict_code(output: bool) -> Vec<(u8, (usize, usize))> {
+    // let mut f = BufWriter::new(File::create(savefile).expect("Could not save dictionary code file."));
+    // let mut output = String::new();
+    // let mut output = String::with_capacity(850_000);
     
-    let mut capacity: usize = 0;
-    for (length, v) in dict {
-        capacity += v.len() * (*length as usize);
+    let mut idxs = Vec::<(u8, (usize, usize))>::new();
+    let mut cur: u8 = 0;
+    let mut start: usize = 0;
+    
+    /*            (1st, last)
+ i      cur start slice
+ 0  a   1   0     
+ 1  ab  2   0->1  1=0,0
+ 2  ad  2   1     
+ 3  abs 3   1->3  2=1,2 
+ 4  add 3   3     
+ 5  ads 3   3     3=3,5
+    
+    */
+    fn surroundings(i: usize) {
+        if i > 0 {
+            println!("\t{} = {}", i-1, DICT_LIST[i-1]);
+        }
+        println!("\t{} = {}", i, DICT_LIST[i]);
+        if i < DICT_LIST.len()-1 {
+            println!("\t{} = {}", i+1, DICT_LIST[i+1]);
+        }
     }
     
-    f.write(output.as_bytes());
+    for i in 0..DICT_LIST.len() {
+        if (DICT_LIST[i].len() as u8) > cur {
+            if i == 0 {
+                cur = DICT_LIST[0].len() as u8;
+                start = 0usize;
+                continue;
+            }
+            if output {
+                println!("Adding length {}=({}, {})", cur, start, i-1);
+                surroundings(i);
+            }
+            idxs.push( (cur, (start, i-1)) );
+            cur = DICT_LIST[i].len() as u8;
+            start = i;
+        }
+        // last element, make entry
+        if i == DICT_LIST.len()-1 {
+            if output {
+                println!("Adding final length {}=({}, {})", cur, start, i);
+                surroundings(i);
+            }
+            idxs.push( (cur, (start, i)) );
+        }
+    }
+    
+    idxs
 }
+
+*/
 
 pub fn save_dict_code(var_name: &str, dict: &HashMap<u8, Vec<&'static str>>, savefile: &str) {
     // let start = Instant::now();
