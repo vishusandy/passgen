@@ -1,6 +1,7 @@
 
 // pub static DICT_INDEXES = 
 
+#[allow(dead_code)]
 pub static DICT_NP_LIST: [&'static str; 75288] = [
         "ad",
         "ah",
@@ -75291,6 +75292,7 @@ pub static DICT_NP_LIST: [&'static str; 75288] = [
 		"electroencephalography",
 		"electroencephalographic",
 ];
+#[allow(dead_code)]
 pub static DICT_NP_INDEXES: [(u8, (usize, usize)); 22] = 
 [
 (2, (0, 61)), 
@@ -75316,33 +75318,3 @@ pub static DICT_NP_INDEXES: [(u8, (usize, usize)); 22] =
 (22, (75284, 75286)), 
 (23, (75287, 75287))
 ];
-
-/*
-pub static DICT_INDEXES: [&'static [&'static str]; 24] = 
-[
-&DICT_LIST[0..0],
-&DICT_LIST[0..0],
-&DICT_LIST[0..61], 
-&DICT_LIST[62..696], 
-&DICT_LIST[697..3216], 
-&DICT_LIST[3217..8220], 
-&DICT_LIST[8221..16343], 
-&DICT_LIST[16344..27620], 
-&DICT_LIST[27621..39827], 
-&DICT_LIST[39828..50970], 
-&DICT_LIST[50971..60039], 
-&DICT_LIST[60040..66477], 
-&DICT_LIST[66478..70677], 
-&DICT_LIST[70678..73081], 
-&DICT_LIST[73082..74286], 
-&DICT_LIST[74287..74871], 
-&DICT_LIST[74872..75107], 
-&DICT_LIST[75108..75224], 
-&DICT_LIST[75225..75259], 
-&DICT_LIST[75260..75276], 
-&DICT_LIST[75277..75281], 
-&DICT_LIST[75282..75283], 
-&DICT_LIST[75284..75286], 
-&DICT_LIST[75287..75287]
-];
-*/

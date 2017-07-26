@@ -1,6 +1,6 @@
 
 
-
+#[allow(dead_code)]
 pub static DICT_A_LIST: [&'static str; 81536] = [
 		"ad",
 		"ah",
@@ -81539,6 +81539,7 @@ pub static DICT_A_LIST: [&'static str; 81536] = [
 		"electroencephalographic",
 		"electroencephalographies",
 ];
+#[allow(dead_code)]
 pub static DICT_A_INDEXES: [(u8, (usize, usize)); 23] = 
 [
 (2, (0, 61)), 

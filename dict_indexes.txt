@@ -32,3 +32,30 @@ Smart random password generator that uses a dictionary for words but mutates the
 (22, (75284, 75286)), 
 (23, (75287, 75287))
 ]
+
+
+
+Attached is the program, rename to passgen.exe (renamed ext so it could be sent in email)
+
+Run using:
+
+passgen.exe -l 10 -c
+will generate a 10 letter (thats a lowercase L before the 10) password with capitalization.
+
+Use passgen.exe -h or passgen.exe --help for help
+
+
+
+
+
+
+
+Advanced usage:
+passgen.exe -l 10 -n -p -c
+will generate a 10 letter password with capitalization as well as numeric and punctuation letters.
+
+passgen.exe -l 10 --e
+will generate a 10 letter password with leet speak
+
+to use advanced leet speak use
+passgen.exe -l 10 -e -n
