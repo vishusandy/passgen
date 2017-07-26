@@ -1,10 +1,40 @@
 use dict_list_all::*;
-// use dict_list_np::*;
+use dict_list_np::*;
+use plurals_list::*;
 use rand::{thread_rng, Rng};
 use rand::distributions::range::SampleRange;
 use std::collections::HashMap;
 
+use std::fs::File;
+use std::io::BufWriter;
+use std::io::prelude::*;
 
+pub fn find_plurals(savefile: &str) -> Vec<&'static str> {
+    // let all = init_dict2(DICT_A_INDEXES[..], DICT_A_LIST[..]);
+    // let nop = init_dict2(DICT_NP_INDEXES[..], DICT_NP_LIST[..]);
+    
+    let mut n = 0usize;
+    let mut plurals = Vec::new();
+    
+    for a in 0..DICT_A_LIST.len() {
+        if n < DICT_NP_LIST.len() && DICT_A_LIST[a] != DICT_NP_LIST[n] {
+            plurals.push(DICT_A_LIST[a]);
+        } else {
+            n += 1;
+        }
+    }
+    let mut f = BufWriter::new(File::create(savefile).expect("Could not create output file"));
+    for i in 0..plurals.len() {
+        
+        #[allow(unused_must_use)]
+        f.write(plurals[i].as_bytes());
+        #[allow(unused_must_use)]
+        f.write(b"\n");
+    }
+    plurals
+}
+
+#[allow(dead_code)]
 pub fn init_dict() -> HashMap<u8, (usize, usize)> {
     let mut dict: HashMap<u8, (usize, usize)> = HashMap::new();
     let version = DICT_A_INDEXES;
@@ -16,19 +46,47 @@ pub fn init_dict() -> HashMap<u8, (usize, usize)> {
     dict
 }
 
-pub fn init_dict2() -> HashMap<u8, &'static [&'static str]> {
-    let mut dict: HashMap<u8, &'static [&'static str]> = HashMap::new();
-    let version = DICT_A_INDEXES;
-    for i in 0..version.len() {
-        dict.insert(version[i].0, &DICT_A_LIST[version[i].1 .0 .. version[i].1 .1]);
-        if &DICT_A_LIST[version[i].1 .0 .. version[i].1 .1].len() != &(version[i].1 .1 - version[i].1 .0) {
-            println!("Length slice mismatch.  S0={}, S1={}", version[i].1 .0, version[i].1 .1);
+// pub fn init_dict2<A, B>(version: &[&'static str], list: &[(u8, (usize, usize))]) -> HashMap<u8, &'static [&'static str]> {
+
+#[allow(dead_code)]
+// pub fn init_dict2<'a>(list: &'a[&'static str], version: &'a[(u8, (usize, usize))]) -> HashMap<u8, &'static [&'static str]> {
+pub fn init_dict2(plurals: bool) -> HashMap<u8, &'static [&'static str]> {
+    // let version = if plurals { DICT_A_INDEXES } else { DICT_NP_INDEXES };
+    // let list = if plurals { DICT_A_LIST } else { DICT_NP_LIST };
+    if plurals {
+        let mut dict: HashMap<u8, &'static [&'static str]> = HashMap::new();
+        
+        // let DICT_A_INDEXES = DICT_A_INDEXES;
+        
+        for i in 0..DICT_A_INDEXES.len() {
+            dict.insert(DICT_A_INDEXES[i].0, &DICT_A_LIST[DICT_A_INDEXES[i].1 .0 .. DICT_A_INDEXES[i].1 .1]);
+            if &DICT_A_LIST[DICT_A_INDEXES[i].1 .0 .. DICT_A_INDEXES[i].1 .1].len() != &(DICT_A_INDEXES[i].1 .1 - DICT_A_INDEXES[i].1 .0) {
+                println!("Length mismatch");
+                // println!("Length slice mismatch.  S0={}, S1={}", DICT_A_INDEXES[i].1 .0, DICT_A_INDEXES[i].1 .1);
+            }
+            // let tmp = DICT_A_INDEXES[i].1;
+            // dict.insert(DICT_A_INDEXES[i].0, (tmp.0, tmp.1) );
+            // dict.insert(DICT_A_INDEXES[i].0, (DICT_A_INDEXES[i].1 .0, DICT_A_INDEXES[i].1 .1) );
         }
-        // let tmp = version[i].1;
-        // dict.insert(version[i].0, (tmp.0, tmp.1) );
-        // dict.insert(version[i].0, (version[i].1 .0, version[i].1 .1) );
+        dict
+    } else {
+        let mut dict: HashMap<u8, &'static [&'static str]> = HashMap::new();
+        
+        // let DICT_NP_INDEXES = DICT_A_INDEXES;
+        
+        for i in 0..DICT_NP_INDEXES.len() {
+            dict.insert(DICT_NP_INDEXES[i].0, &DICT_NP_LIST[DICT_NP_INDEXES[i].1 .0 .. DICT_NP_INDEXES[i].1 .1]);
+            if &DICT_NP_LIST[DICT_NP_INDEXES[i].1 .0 .. DICT_NP_INDEXES[i].1 .1].len() != &(DICT_NP_INDEXES[i].1 .1 - DICT_NP_INDEXES[i].1 .0) {
+                println!("Length mismatch");
+                // println!("Length slice mismatch.  S0={}, S1={}", DICT_NP_INDEXES[i].1 .0, DICT_NP_INDEXES[i].1 .1);
+            }
+            // let tmp = DICT_NP_INDEXES[i].1;
+            // dict.insert(DICT_NP_INDEXES[i].0, (tmp.0, tmp.1) );
+            // dict.insert(DICT_NP_INDEXES[i].0, (DICT_NP_INDEXES[i].1 .0, DICT_NP_INDEXES[i].1 .1) );
+        }
+        dict
     }
-    dict
+    
 }
 
 pub fn safe_range<T: PartialOrd + SampleRange>(start: T, end: T) -> T {
@@ -40,7 +98,7 @@ pub fn safe_range<T: PartialOrd + SampleRange>(start: T, end: T) -> T {
     }    
 }
 
-
+#[allow(dead_code)]
 pub fn get_word2(dict: &HashMap<u8, &'static [&'static str]>, len: u8) -> &'static str {
     let mut rg = thread_rng();
     match dict.get(&len) {
@@ -55,7 +113,7 @@ pub fn get_word2(dict: &HashMap<u8, &'static [&'static str]>, len: u8) -> &'stat
             
         },
         None => {
-            // #[allow(unused_assignments)]
+            #[allow(unused_assignments)]
             let mut closest: u8 = 0;
             let mut lower: u8 = 0;
             let mut upper: u8 = 0;
@@ -93,6 +151,7 @@ pub fn get_word2(dict: &HashMap<u8, &'static [&'static str]>, len: u8) -> &'stat
     }
 }
 
+#[allow(dead_code)]
 pub fn get_word(dict: &HashMap<u8, (usize, usize)>, len: u8) -> &'static str {
     match dict.get(&len) {
         Some( r ) => {
@@ -144,6 +203,7 @@ pub fn rand_length(len: u8, min: u8) -> u8 {
     }
 }
 
+#[allow(dead_code)]
 pub fn is_word2(dict: &HashMap<u8, &'static [&'static str]>, word: &str) -> bool {
         if let Some(v) = dict.get(&(word.len() as u8)) {
             // for i in v.0 .. v.1+1 {
@@ -156,6 +216,25 @@ pub fn is_word2(dict: &HashMap<u8, &'static [&'static str]>, word: &str) -> bool
         false
 }
 
+#[allow(dead_code)]
+pub fn is_word_plurals(dict: &HashMap<u8, &'static [&'static str]>, word: &str) -> bool {
+        if let Some(v) = dict.get(&(word.len() as u8)) {
+            // for i in v.0 .. v.1+1 {
+            for i in 0..v.len() {
+                if DICT_A_LIST[i] == word {
+                    return true;
+                }
+            }
+        }
+        for i in 0..PLURALS.len() {
+            if PLURALS[i] == word {
+                return true;
+            }
+        }
+        false
+}
+
+#[allow(dead_code)]
 pub fn is_word(dict: &HashMap<u8, (usize, usize)>, word: &str) -> bool {
         if let Some(v) = dict.get(&(word.len() as u8)) {
             for i in v.0 .. v.1+1 {

@@ -1,8 +1,10 @@
 
 // Todo: the DICT_A_LIST is for no plurals only, possibly change this?
 
-// Todo: if a consonant is surrounded by vowels replace it with a vowel
+// Todo: maybe add option for advanced leet speak and make numbers be added if specified
 
+// Todo: make is_word check all words including plurals but get_word to only return non-plurals
+//         after checking dictionary of specified length check plurals list
 
 #[macro_use] 
 extern crate log;
@@ -13,24 +15,15 @@ extern crate rmp_serde as rmps;
 extern crate serde;
 extern crate time;
 
-// mod dictsort;
-// mod dict_code_all;
-// mod dict_code_noplurals;
-// mod create_dictionary;
 mod dict_list_np;
 mod dict_helpers;
 mod dict_list_all;
-// mod password;
+mod plurals_list;
 mod passwords;
-// mod dictionary;
 
 use argparse::{ArgumentParser, StoreTrue, Store};
-// use dictsort::*;
-// use create_dictionary::*;
-// use dict_code_all::*;
-// use dict_code_noplurals::*;
 // use dict_list_all::*;
-// use leet::*;
+// use dict_list_np::*;
 use passwords::*;
 use dict_helpers::*;
 // use std::collections::HashMap;
@@ -40,11 +33,16 @@ use std::time::Instant;
 fn main() {
     let start = Instant::now();
     
-    let idic = init_dict();
+    // let idic2 = init_dict2(&DICT_A_LIST[..], &DICT_A_INDEXES[..]);
+    let idic2 = init_dict2(false);
+    // let idic2 = init_dict2(false);
+    // let idic2 = init_dict2(DICT_A_INDEXES[..], DICT_A_LIST[..]);
     
     let after_dict = start.elapsed();
     
-    let idic2 = init_dict2();
+    // find_plurals("plurals.txt");
+    
+    // let idic = init_dict();
     
     let after_codegen = start.elapsed();
     
@@ -82,11 +80,8 @@ fn main() {
     let after_args = start.elapsed();
     
     for _ in 0..numwords {
-        let pass = transform(&idic, passlen, passcaps, passnums, passleet, passpunc, &specpunc);
-        
-        // println!("Apologetic: {}\nApoljetic: {}", passwords::is_word2(&idic, "apologetic"), passwords::is_word2(&idic, "apolojetic"));
-        // println!("\nWord2() = {}", get_word2(&idic, passlen));
-        println!("Password: {}\n-----------------", pass);
+        // let pass = transform(&idic, passlen, passcaps, passnums, passleet, passpunc, &specpunc);
+        // println!("Password: {}\n-----------------", pass);
         
         let pass2 = transform2(&idic2, passlen, passcaps, passnums, passleet, passpunc, &specpunc);
         println!("Password: {}", pass2);

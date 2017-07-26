@@ -1,6 +1,6 @@
 [package]
 name = "passgen"
-version = "0.7.0"
+version = "0.7.1"
 authors = ["Andrew Prindle <prindle.andrew@gmail.com>"]
 
 [dependencies]

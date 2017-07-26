@@ -23,7 +23,7 @@ use std::collections::HashMap;
     special &str    use special set of punctuation
 */
 
-
+#[allow(dead_code)]
 pub fn transform2(dict: &HashMap<u8, &'static [&'static str]>, length: u8, caps: bool, nums: bool, leet: bool, punc: bool, special: &str) -> String {
     // leet_speak numbers punctuation 
     // let words = Vec::<String>::new();
@@ -101,7 +101,7 @@ pub fn transform2(dict: &HashMap<u8, &'static [&'static str]>, length: u8, caps:
     }
 }
 
-
+#[allow(dead_code)]
 pub fn transform(dict: &HashMap<u8, (usize, usize)>, length: u8, caps: bool, nums: bool, leet: bool, punc: bool, special: &str) -> String {
     // leet_speak numbers punctuation 
     // let words = Vec::<String>::new();
@@ -217,22 +217,32 @@ fn mutate_word(word: &str) -> String {
                 _ => false,
             }
         };
-        
+        // a y is a vowel if it is at the end of the word or surrounded by consonants
+        // if a consonant is surrounded by other consonants use change_vowel()
         if changes.contains(&i) {
             match letter {
-                "y" if (i > 0
-                        && i < word.len()-1
-                        && !is_basic_vowel(&word[i-1..i]) 
-                        && !is_basic_vowel(&word[i+1..i+2])
-                    ) => new.push_str(&change_vowel(&letter)),
+                
+                // treat y as a vowel if at end of word or surrounded by consonants
+                "y" if 
+                        
+                        i == word.len()-1 // at end of a word
+                        || ( // or surrounded by consonants
+                            (i == 0 || (i > 0 && !is_basic_vowel(&word[i-1..i]))) // beginning of word or previous letter is a consonant
+                            && ( (i < word.len()-1 && !is_basic_vowel(&word[i+1..i+2])) /* || i == word.len()-1 */ ) // next letter is a consonant, do not check if end of word because that was already checked
+                           )
+                     => new.push_str(&change_vowel(&letter)),
+                
+                // a basic vowel
                 "a" | "e" | "i" | "o" | "u" => new.push_str(change_vowel(&letter)),
-                _ if ((i == 0 || !is_vowel(&word[i-1..i]))
-                      && !is_vowel(&word[i..i+1])
-                      && (i == word.len()-1 || !is_vowel(&word[i+1..i+2]))
+                
+                // change consonant to vowel if surrounded by consonants
+                _ if ((i > 0 && !is_vowel(&word[i-1..i])) // if not beginning of word and previous letter is consonant
+                      && !is_vowel(&word[i..i+1]) // not necessary in most situations
+                      && (i < word.len()-1 && !is_vowel(&word[i+1..i+2])) // not at end of word and next letter is consonant
                   ) => new.push_str(change_vowel(&letter)),
-                _ => {
-                    new.push_str(change_consonant(&letter));
-                },
+                
+                // a normal consonant
+                _ => new.push_str(change_consonant(&letter)),
             }
         } else {
             new.push_str(letter);
@@ -248,8 +258,7 @@ fn change_vowel(letter: &str) -> &str {
     let vowels = vec!["a", "e", "i", "o", "u", "y"];
     let mut choice = match rg.choose(&vowels){
         Some(a) => a,
-        // ¶϶µ¥£∑¡~§¦
-        None => "§",
+        None => "~",
     };
     while choice == letter {
         choice = match rg.choose(&vowels) {
