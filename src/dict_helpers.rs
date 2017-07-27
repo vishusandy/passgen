@@ -9,31 +9,6 @@ use std::fs::File;
 use std::io::BufWriter;
 use std::io::prelude::*;
 
-pub fn find_plurals(savefile: &str) -> Vec<&'static str> {
-    // let all = init_dict2(DICT_A_INDEXES[..], DICT_A_LIST[..]);
-    // let nop = init_dict2(DICT_NP_INDEXES[..], DICT_NP_LIST[..]);
-    
-    let mut n = 0usize;
-    let mut plurals = Vec::new();
-    
-    for a in 0..DICT_A_LIST.len() {
-        if n < DICT_NP_LIST.len() && DICT_A_LIST[a] != DICT_NP_LIST[n] {
-            plurals.push(DICT_A_LIST[a]);
-        } else {
-            n += 1;
-        }
-    }
-    let mut f = BufWriter::new(File::create(savefile).expect("Could not create output file"));
-    for i in 0..plurals.len() {
-        
-        #[allow(unused_must_use)]
-        f.write(plurals[i].as_bytes());
-        #[allow(unused_must_use)]
-        f.write(b"\n");
-    }
-    plurals
-}
-
 #[allow(dead_code)]
 pub fn init_dict() -> HashMap<u8, (usize, usize)> {
     let mut dict: HashMap<u8, (usize, usize)> = HashMap::new();
@@ -204,13 +179,28 @@ pub fn rand_length(len: u8, min: u8) -> u8 {
 }
 
 #[allow(dead_code)]
-pub fn is_word2(dict: &HashMap<u8, &'static [&'static str]>, word: &str) -> bool {
+pub fn is_word2(dict: &HashMap<u8, &'static [&'static str]>, plurals: bool, word: &str) -> bool {
         if let Some(v) = dict.get(&(word.len() as u8)) {
             // for i in v.0 .. v.1+1 {
             for i in 0..v.len() {
-                if DICT_A_LIST[i] == word {
-                    return true;
+                let w = v[i];
+                let t = v[i].len();
+                if &w[t-1..t] == "%" {
+                    if !plurals {
+                        continue;
+                    } else {
+                        if &w[..t-1] == word {
+                            return true;
+                        }
+                    }
+                } else {
+                    if w == word {
+                        return true;
+                    }
                 }
+                // if DICT_A_LIST[i] == word {
+                //     return true;
+                // }
             }
         }
         false
@@ -221,7 +211,7 @@ pub fn is_word_plurals(dict: &HashMap<u8, &'static [&'static str]>, word: &str) 
         if let Some(v) = dict.get(&(word.len() as u8)) {
             // for i in v.0 .. v.1+1 {
             for i in 0..v.len() {
-                if DICT_A_LIST[i] == word {
+                if v[i] == word {
                     return true;
                 }
             }
@@ -238,10 +228,43 @@ pub fn is_word_plurals(dict: &HashMap<u8, &'static [&'static str]>, word: &str) 
 pub fn is_word(dict: &HashMap<u8, (usize, usize)>, word: &str) -> bool {
         if let Some(v) = dict.get(&(word.len() as u8)) {
             for i in v.0 .. v.1+1 {
-                if DICT_A_LIST[i] == word {
+                let w = DICT_A_LIST[i];
+                let t = DICT_A_LIST[i].len();
+                if &w[t-1..t] == "%" {
+                    if &w[..t-1] == word {
+                        return true;
+                    }
+                }
+                else if DICT_A_LIST[i] == word {
                     return true;
                 }
             }
         }
         false
 }
+
+pub fn find_plurals(savefile: &str) -> Vec<&'static str> {
+    // let all = init_dict2(DICT_A_INDEXES[..], DICT_A_LIST[..]);
+    // let nop = init_dict2(DICT_NP_INDEXES[..], DICT_NP_LIST[..]);
+    
+    let mut n = 0usize;
+    let mut plurals = Vec::new();
+    
+    for a in 0..DICT_A_LIST.len() {
+        if n < DICT_NP_LIST.len() && DICT_A_LIST[a] != DICT_NP_LIST[n] {
+            plurals.push(DICT_A_LIST[a]);
+        } else {
+            n += 1;
+        }
+    }
+    let mut f = BufWriter::new(File::create(savefile).expect("Could not create output file"));
+    for i in 0..plurals.len() {
+        
+        #[allow(unused_must_use)]
+        f.write(plurals[i].as_bytes());
+        #[allow(unused_must_use)]
+        f.write(b"\n");
+    }
+    plurals
+}
+

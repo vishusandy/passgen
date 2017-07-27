@@ -24,7 +24,7 @@ use std::collections::HashMap;
 */
 
 #[allow(dead_code)]
-pub fn transform2(dict: &HashMap<u8, &'static [&'static str]>, length: u8, caps: bool, nums: bool, leet: bool, punc: bool, special: &str) -> String {
+pub fn transform2(dict: &HashMap<u8, &'static [&'static str]>, testword: bool, length: u8, caps: bool, nums: bool, leet: bool, punc: bool, special: &str) -> String {
     // leet_speak numbers punctuation 
     // let words = Vec::<String>::new();
     let minword = 2;
@@ -75,13 +75,20 @@ pub fn transform2(dict: &HashMap<u8, &'static [&'static str]>, length: u8, caps:
                 };
                 step3
             },
-            _ => transform2(dict, length, caps, nums, false, punc, special),
+            _ => transform2(dict, testword, length, caps, nums, false, punc, special),
         }
     } else {
+        let mut checkword: bool = testword;
+        if nums || punc {
+            checkword = false;
+        }
         let step0 = get_word2(dict, len);
         let mut step1 = mutate_word(step0);
-        while is_word2(dict, &step1) {
-            step1 = mutate_word(get_word2(dict, len));
+        if checkword {
+            // change middle parameter to true to check plurals
+            while is_word2(dict, false, &step1) {
+                step1 = mutate_word(get_word2(dict, len));
+            }
         }
         let step2 = match caps {
             true => capitalize(&step1),
@@ -102,7 +109,7 @@ pub fn transform2(dict: &HashMap<u8, &'static [&'static str]>, length: u8, caps:
 }
 
 #[allow(dead_code)]
-pub fn transform(dict: &HashMap<u8, (usize, usize)>, length: u8, caps: bool, nums: bool, leet: bool, punc: bool, special: &str) -> String {
+pub fn transform(dict: &HashMap<u8, (usize, usize)>, testword: bool, length: u8, caps: bool, nums: bool, leet: bool, punc: bool, special: &str) -> String {
     // leet_speak numbers punctuation 
     // let words = Vec::<String>::new();
     let minword = 2;
@@ -153,13 +160,19 @@ pub fn transform(dict: &HashMap<u8, (usize, usize)>, length: u8, caps: bool, num
                 };
                 step3
             },
-            _ => transform(dict, length, caps, nums, false, punc, special),
+            _ => transform(dict, testword, length, caps, nums, false, punc, special),
         }
     } else {
+        let mut checkword: bool = testword;
+        if nums || punc {
+            checkword = false;
+        }
         let step0 = get_word(dict, len);
         let mut step1 = mutate_word(step0);
-        while is_word(dict, &step1) {
-            step1 = mutate_word(get_word(dict, len));
+        if checkword {
+            while is_word(dict, &step1) {
+                step1 = mutate_word(get_word(dict, len));
+            }
         }
         let step2 = match caps {
             true => capitalize(&step1),
@@ -187,11 +200,11 @@ fn mutate_word(word: &str) -> String {
     
     let max = match len {
         a if a > 16 => 3,
-        a if a > 5 && a < 15 => 2,
+        a if a > 5 && a < 16 => 2,
         _ => 1,
     };
     
-    let num = safe_range(1, max);
+    let num = if max != 1 { rg.gen_range(1, max+1) } else { 1 };
     
     let mut letters = Vec::new();
     for i in 0..word.len() {
@@ -201,6 +214,16 @@ fn mutate_word(word: &str) -> String {
     rg.shuffle(&mut letters);
     
     let changes = &letters[0..num];
+    
+    // let changes = &letters[0..num+1];
+    
+/*    let mut changes = Vec::new();
+    for i in 0..num {
+        changes.push(letters[i]);
+    }*/
+    
+    debug!("{} mutation points: {:?} with a max of {} and num of {}", word, changes, max, num);
+    
     for i in 0..word.len() {
         let letter = &word[i..i+1];
         
@@ -240,6 +263,7 @@ fn mutate_word(word: &str) -> String {
                       && !is_vowel(&word[i..i+1]) // not necessary in most situations
                       && (i < word.len()-1 && !is_vowel(&word[i+1..i+2])) // not at end of word and next letter is consonant
                   ) => new.push_str(change_vowel(&letter)),
+                 
                 
                 // a normal consonant
                 _ => new.push_str(change_consonant(&letter)),

@@ -3,9 +3,6 @@
 
 // Todo: maybe add option for advanced leet speak and make numbers be added if specified
 
-// Todo: make is_word check all words including plurals but get_word to only return non-plurals
-//         after checking dictionary of specified length check plurals list
-
 #[macro_use] 
 extern crate log;
 
@@ -54,6 +51,7 @@ fn main() {
     let mut passleet = false;
     let mut numwords: u64 = 1;
     let mut timeinfo = false;
+    let mut testword = false;
     {
         let mut ap = ArgumentParser::new();
         ap.set_description("Smart password generator.  Generates passwords based on dictionary words but does not use actual words so as to avoid dictionary attacks.");
@@ -65,6 +63,7 @@ fn main() {
         ap.refer(&mut specpunc).add_option(&["-s", "--custom"], Store, "Use a special list of punctuation characters.");
         ap.refer(&mut numwords).add_option(&["-r", "--repeat"], Store, "Repeat the program a number of times to generate multiple passwords.");
         ap.refer(&mut timeinfo).add_option(&["-i", "--info"], StoreTrue, "Print timing information (execution time).");
+        ap.refer(&mut testword).add_option(&["-t", "--testisword"], StoreTrue, "When generating a password check if the mutated word is a dictionary word.");
         ap.parse_args_or_exit();
     }
     if passleet && passnums {
@@ -83,7 +82,7 @@ fn main() {
         // let pass = transform(&idic, passlen, passcaps, passnums, passleet, passpunc, &specpunc);
         // println!("Password: {}\n-----------------", pass);
         
-        let pass2 = transform2(&idic2, passlen, passcaps, passnums, passleet, passpunc, &specpunc);
+        let pass2 = transform2(&idic2, testword, passlen, passcaps, passnums, passleet, passpunc, &specpunc);
         println!("Password: {}", pass2);
     }
     
