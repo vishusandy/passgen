@@ -3,11 +3,26 @@ use dict_list_np::*;
 use plurals_list::*;
 use rand::{thread_rng, Rng};
 use rand::distributions::range::SampleRange;
+// use num_integer::*;
+use num::{Num, Zero, One};
+use std::ops::Add;
 use std::collections::HashMap;
 
 use std::fs::File;
 use std::io::BufWriter;
 use std::io::prelude::*;
+
+
+pub fn safe_range<N>(start: N, end: N) -> N where N: Num + PartialOrd + Copy + SampleRange  {
+    let e = end + N::one();
+    if start < end {
+        let mut rg = thread_rng();
+        rg.gen_range(start, e)
+    } else {
+        start
+    }
+}
+
 
 #[allow(dead_code)]
 pub fn init_dict() -> HashMap<u8, (usize, usize)> {
@@ -19,6 +34,34 @@ pub fn init_dict() -> HashMap<u8, (usize, usize)> {
         dict.insert(version[i].0, (version[i].1 .0, version[i].1 .1) );
     }
     dict
+}
+
+#[allow(dead_code)]
+pub fn is_word2(dict: &HashMap<u8, &'static [&'static str]>, plurals: bool, word: &str) -> bool {
+        if let Some(v) = dict.get(&(word.len() as u8)) {
+            // for i in v.0 .. v.1+1 {
+            for i in 0..v.len() {
+                let w = v[i];
+                let t = v[i].len();
+                if &w[t-1..t] == "%" {
+                    if !plurals {
+                        continue;
+                    } else {
+                        if &w[..t-1] == word {
+                            return true;
+                        }
+                    }
+                } else {
+                    if w == word {
+                        return true;
+                    }
+                }
+                // if DICT_A_LIST[i] == word {
+                //     return true;
+                // }
+            }
+        }
+        false
 }
 
 // pub fn init_dict2<A, B>(version: &[&'static str], list: &[(u8, (usize, usize))]) -> HashMap<u8, &'static [&'static str]> {
@@ -62,15 +105,6 @@ pub fn init_dict2(plurals: bool) -> HashMap<u8, &'static [&'static str]> {
         dict
     }
     
-}
-
-pub fn safe_range<T: PartialOrd + SampleRange>(start: T, end: T) -> T {
-    if start < end {
-        let mut rg = thread_rng();
-        rg.gen_range(start, end)
-    } else {
-        start
-    }    
 }
 
 #[allow(dead_code)]
@@ -178,33 +212,7 @@ pub fn rand_length(len: u8, min: u8) -> u8 {
     }
 }
 
-#[allow(dead_code)]
-pub fn is_word2(dict: &HashMap<u8, &'static [&'static str]>, plurals: bool, word: &str) -> bool {
-        if let Some(v) = dict.get(&(word.len() as u8)) {
-            // for i in v.0 .. v.1+1 {
-            for i in 0..v.len() {
-                let w = v[i];
-                let t = v[i].len();
-                if &w[t-1..t] == "%" {
-                    if !plurals {
-                        continue;
-                    } else {
-                        if &w[..t-1] == word {
-                            return true;
-                        }
-                    }
-                } else {
-                    if w == word {
-                        return true;
-                    }
-                }
-                // if DICT_A_LIST[i] == word {
-                //     return true;
-                // }
-            }
-        }
-        false
-}
+
 
 #[allow(dead_code)]
 pub fn is_word_plurals(dict: &HashMap<u8, &'static [&'static str]>, word: &str) -> bool {

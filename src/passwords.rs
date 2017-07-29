@@ -204,16 +204,25 @@ fn mutate_word(word: &str) -> String {
         _ => 1,
     };
     
-    let num = if max != 1 { rg.gen_range(1, max+1) } else { 1 };
+    let num = if max != 1 { safe_range(1, max) } else { 1 };
+    let mut ns: [usize; 50] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49];
+    
     
     let mut letters = Vec::new();
     for i in 0..word.len() {
         letters.push(i);
     }
-    
     rg.shuffle(&mut letters);
+    let mut changes = Vec::new();
+    for i in 0..num {
+        changes.push(letters[i]);
+    }
     
-    let changes = &letters[0..num];
+    // let mut changes = letters[0..num];
+    
+    // let mut letters = &mut ns[0..word.len()];
+    // rg.shuffle(&mut letters);
+    // let changes = &ns[0..num];
     
     // let changes = &letters[0..num+1];
     

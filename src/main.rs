@@ -7,6 +7,8 @@
 extern crate log;
 
 extern crate argparse;
+// extern crate integer;
+extern crate num;
 extern crate rand;
 extern crate rmp_serde as rmps;
 extern crate serde;
